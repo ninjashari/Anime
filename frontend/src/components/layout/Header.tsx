@@ -47,10 +47,16 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, title = 'Anime Management 
     navigate('/settings');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     handleMenuClose();
-    logout();
-    navigate('/login');
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Still navigate to login even if logout API call fails
+      navigate('/login');
+    }
   };
 
   return (

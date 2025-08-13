@@ -68,12 +68,18 @@
   - [x] Add form validation and error display functionality
   - [x] Implement loading states and user feedback
   - [ ] Connect authentication forms to backend API
+
+
+
+
   - [ ] Implement token storage and management
   - [ ] Add API error handling and user feedback
   - [ ] Write component tests for authentication forms
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 8.4, 8.5_
 
-- [-] 6. Create API service layer and connect frontend to backend
+- [x] 6. Create API service layer and connect frontend to backend
+
+
 
 
 

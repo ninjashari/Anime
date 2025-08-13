@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { authApi } from '../services/authApi';
+import { ApiError } from '../services/api';
 
 // Types
 export interface User {
   id: number;
   username: string;
   name: string;
-  malTokenExists: boolean;
+  mal_token_expires_at: string | null;
 }
 
 export interface AuthState {
@@ -18,7 +20,7 @@ export interface AuthState {
 export interface AuthContextType extends AuthState {
   login: (username: string, password: string) => Promise<void>;
   register: (name: string, username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -102,14 +104,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check for existing token on mount
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
+      if (authApi.isAuthenticated()) {
         try {
-          // TODO: Implement API call to verify token and get user info
-          // For now, we'll just set loading to false
-          dispatch({ type: 'SET_LOADING', payload: false });
+          const user = await authApi.getMe();
+          dispatch({ type: 'AUTH_SUCCESS', payload: user });
         } catch (error) {
-          localStorage.removeItem('token');
+          // Token is invalid, clear it
+          await authApi.logout();
           dispatch({ type: 'AUTH_FAILURE', payload: 'Session expired' });
         }
       } else {
@@ -123,16 +124,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (username: string, password: string): Promise<void> => {
     dispatch({ type: 'AUTH_START' });
     try {
-      // TODO: Implement actual API call
-      // const response = await authAPI.login(username, password);
-      // localStorage.setItem('token', response.data.token);
-      // dispatch({ type: 'AUTH_SUCCESS', payload: response.data.user });
-      
-      // Placeholder implementation
-      throw new Error('Login API not implemented yet');
+      const response = await authApi.login({ username, password });
+      dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Login failed';
-      dispatch({ type: 'AUTH_FAILURE', payload: message });
+      const apiError = error as ApiError;
+      dispatch({ type: 'AUTH_FAILURE', payload: apiError.message });
       throw error;
     }
   };
@@ -140,23 +136,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (name: string, username: string, password: string): Promise<void> => {
     dispatch({ type: 'AUTH_START' });
     try {
-      // TODO: Implement actual API call
-      // const response = await authAPI.register(name, username, password);
-      // localStorage.setItem('token', response.data.token);
-      // dispatch({ type: 'AUTH_SUCCESS', payload: response.data.user });
-      
-      // Placeholder implementation
-      throw new Error('Register API not implemented yet');
+      const response = await authApi.register({ name, username, password });
+      dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Registration failed';
-      dispatch({ type: 'AUTH_FAILURE', payload: message });
+      const apiError = error as ApiError;
+      dispatch({ type: 'AUTH_FAILURE', payload: apiError.message });
       throw error;
     }
   };
 
-  const logout = (): void => {
-    localStorage.removeItem('token');
-    dispatch({ type: 'AUTH_LOGOUT' });
+  const logout = async (): Promise<void> => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.warn('Logout API call failed:', error);
+    } finally {
+      dispatch({ type: 'AUTH_LOGOUT' });
+    }
   };
 
   const clearError = (): void => {
@@ -165,11 +161,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshUser = async (): Promise<void> => {
     try {
-      // TODO: Implement API call to refresh user data
-      // const response = await authAPI.getMe();
-      // dispatch({ type: 'AUTH_SUCCESS', payload: response.data });
+      const user = await authApi.getMe();
+      dispatch({ type: 'AUTH_SUCCESS', payload: user });
     } catch (error) {
       console.error('Failed to refresh user data:', error);
+      const apiError = error as ApiError;
+      dispatch({ type: 'AUTH_FAILURE', payload: apiError.message });
     }
   };
 
