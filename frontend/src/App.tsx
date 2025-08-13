@@ -16,6 +16,8 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import TokenSetup from './pages/TokenSetup';
+import MALCallback from './pages/MALCallback';
 
 // Create a theme instance
 const theme = createTheme({
@@ -75,6 +77,16 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                
+                {/* OAuth callback route */}
+                <Route
+                  path="/auth/mal/callback"
+                  element={
+                    <ProtectedRoute>
+                      <MALCallback />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Protected routes with layout */}
                 <Route
@@ -108,7 +120,10 @@ function App() {
                   <Route path="mappings" element={<div>Mappings - Coming Soon</div>} />
                   
                   {/* Settings */}
-                  <Route path="settings" element={<div>Settings - Coming Soon</div>} />
+                  <Route path="settings">
+                    <Route index element={<div>Settings - Coming Soon</div>} />
+                    <Route path="mal-token" element={<TokenSetup />} />
+                  </Route>
                   
                   {/* Profile */}
                   <Route path="profile" element={<div>Profile - Coming Soon</div>} />

@@ -104,7 +104,12 @@
   - Write unit tests for MyAnimeList integration
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 4.2, 4.3_
 
-- [ ] 8. Create MyAnimeList token setup UI
+- [x] 8. Create MyAnimeList token setup UI
+
+
+
+
+
   - Create TokenSetup page component for OAuth flow initiation
   - Implement OAuth callback handling in frontend routing
   - Build TokenStatus component to display current token state
@@ -113,7 +118,9 @@
   - Write integration tests for OAuth flow
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 9. Create dashboard statistics backend
+- [-] 9. Create dashboard statistics backend
+
+
   - Implement endpoint to calculate total anime count across all lists
   - Build episode count calculation from user anime lists
   - Create time spent watching calculation based on episode data

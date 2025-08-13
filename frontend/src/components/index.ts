@@ -11,3 +11,6 @@ export { default as LoadingSpinner } from './common/LoadingSpinner';
 // Auth Components
 export { default as LoginForm } from './auth/LoginForm';
 export { default as RegisterForm } from './auth/RegisterForm';
+
+// MAL Components
+export { default as TokenStatus } from './mal/TokenStatus';

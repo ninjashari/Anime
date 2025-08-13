@@ -92,6 +92,13 @@ const navigationItems: NavItem[] = [
     text: 'Settings',
     icon: <Settings />,
     path: '/settings',
+    children: [
+      {
+        text: 'MyAnimeList Token',
+        icon: <LinkIcon />,
+        path: '/settings/mal-token',
+      },
+    ],
   },
 ];
 
