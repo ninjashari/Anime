@@ -1,0 +1,95 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: anime_postgres
+    environment:
+      POSTGRES_DB: anime_management
+      POSTGRES_USER: anime_user
+      POSTGRES_PASSWORD: anime_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anime_user -d anime_management"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: anime_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: anime_backend
+    environment:
+      - DATABASE_URL=postgresql://anime_user:anime_password@postgres:5432/anime_management
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=wM96MFc_gwx_P8vKQN_JUU9KuG3cvtqjg9cSJVFw7NQ
+      - MAL_CLIENT_ID=c289fc00376323f1fe8f5256fd12ef55
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8005 --reload
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: anime_frontend
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8005
+    depends_on:
+      - backend
+    command: npm start
+
+  # Celery Worker for Background Tasks
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: anime_celery
+    environment:
+      - DATABASE_URL=postgresql://anime_user:anime_password@postgres:5432/anime_management
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=wM96MFc_gwx_P8vKQN_JUU9KuG3cvtqjg9cSJVFw7NQ
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.celery worker --loglevel=info
+
+volumes:
+  postgres_data:
+  redis_data:
