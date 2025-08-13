@@ -59,3 +59,26 @@ def client(db_session):
     
     # Clean up
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope="function")
+def test_user(db_session):
+    """Create a test user for testing."""
+    from app.services.auth_service import auth_service
+    
+    user = auth_service.create_user(
+        db_session,
+        username="testuser",
+        name="Test User",
+        password="password123"
+    )
+    return user
+
+
+@pytest.fixture(scope="function")
+def auth_headers(test_user):
+    """Create authentication headers for testing."""
+    from app.services.auth_service import auth_service
+    
+    access_token = auth_service.create_access_token({"sub": str(test_user.id)})
+    return {"Authorization": f"Bearer {access_token}"}

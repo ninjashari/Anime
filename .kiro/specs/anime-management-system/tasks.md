@@ -118,7 +118,10 @@
   - Write integration tests for OAuth flow
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [-] 9. Create dashboard statistics backend
+- [x] 9. Create dashboard statistics backend
+
+
+
 
 
   - Implement endpoint to calculate total anime count across all lists
