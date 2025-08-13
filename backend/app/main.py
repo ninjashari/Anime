@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api.auth import router as auth_router
+from app.api.mal import router as mal_router
 
 app = FastAPI(title="Anime Management System", version="1.0.0")
 
@@ -20,6 +21,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router, prefix="/api")
+app.include_router(mal_router, prefix="/api")
 
 
 @app.get("/")

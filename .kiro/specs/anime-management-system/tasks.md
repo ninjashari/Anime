@@ -62,19 +62,17 @@
 
 - [x] 5. Build authentication UI components
 
+
+
   - [x] Create LoginForm component with Material-UI form elements
   - [x] Implement RegisterForm component with validation
   - [x] Build authentication pages with proper routing
   - [x] Add form validation and error display functionality
   - [x] Implement loading states and user feedback
-  - [ ] Connect authentication forms to backend API
-
-
-
-
-  - [ ] Implement token storage and management
-  - [ ] Add API error handling and user feedback
-  - [ ] Write component tests for authentication forms
+  - [x] Connect authentication forms to backend API
+  - [x] Implement token storage and management
+  - [x] Add API error handling and user feedback
+  - [x] Write component tests for authentication forms
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 8.4, 8.5_
 
 - [x] 6. Create API service layer and connect frontend to backend
@@ -92,7 +90,12 @@
   - Write unit tests for API services
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 8.4, 8.5_
 
-- [ ] 7. Implement MyAnimeList API integration backend
+- [x] 7. Implement MyAnimeList API integration backend
+
+
+
+
+
   - Create OAuth 2.0 authorization URL generation endpoint
   - Build OAuth callback handler to exchange code for tokens
   - Implement token storage and automatic refresh functionality
@@ -102,9 +105,10 @@
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 4.2, 4.3_
 
 - [ ] 8. Create MyAnimeList token setup UI
-  - Build token generation page with OAuth flow initiation
-  - Implement OAuth callback handling in frontend
-  - Create token status display and refresh functionality
+  - Create TokenSetup page component for OAuth flow initiation
+  - Implement OAuth callback handling in frontend routing
+  - Build TokenStatus component to display current token state
+  - Create MAL API service integration for frontend
   - Add user feedback for successful/failed token operations
   - Write integration tests for OAuth flow
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
@@ -224,3 +228,10 @@
   - Create mock tests for external API integrations
   - Write component tests for frontend components
   - _Requirements: 10.1, 10.2, 10.4_
+
+- [ ] 22. Fix MAL endpoint authentication issues
+  - Debug and fix 403 errors in MAL endpoint tests
+  - Ensure proper authentication middleware for MAL endpoints
+  - Update MAL endpoint tests to use proper authentication
+  - Verify MAL token validation and refresh functionality
+  - _Requirements: 2.1, 2.2, 2.3, 2.4_
