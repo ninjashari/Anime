@@ -18,6 +18,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import TokenSetup from './pages/TokenSetup';
 import MALCallback from './pages/MALCallback';
+import Search from './pages/Search';
 
 // Create a theme instance
 const theme = createTheme({
@@ -114,7 +115,7 @@ function App() {
                   </Route>
                   
                   {/* Search */}
-                  <Route path="search" element={<div>Search - Coming Soon</div>} />
+                  <Route path="search" element={<Search />} />
                   
                   {/* Mappings */}
                   <Route path="mappings" element={<div>Mappings - Coming Soon</div>} />

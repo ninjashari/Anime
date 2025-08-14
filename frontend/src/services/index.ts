@@ -4,6 +4,7 @@ export { authApi } from './authApi';
 export { malApi } from './malApi';
 export { dashboardApi } from './dashboardApi';
 export { animeListApi } from './animeListApi';
+export { searchApi } from './searchApi';
 export type { ApiResponse, ApiError } from './api';
 export type { 
   LoginRequest, 
@@ -28,3 +29,12 @@ export type {
   StatCardProps,
   ScoreDistributionChartProps
 } from '../types/dashboard';
+export type {
+  SearchAnimeResult,
+  SearchResponse,
+  AddToListRequest,
+  AddToListResponse,
+  SearchHistoryItem,
+  SearchHistoryResponse,
+  SearchSuggestionResponse
+} from './searchApi';

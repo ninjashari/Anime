@@ -141,7 +141,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
               <IconButton
                 size="small"
                 onClick={handleIncrement}
-                disabled={disabled || (totalEpisodes && currentProgress >= totalEpisodes)}
+                disabled={disabled || Boolean(totalEpisodes && currentProgress >= totalEpisodes)}
                 sx={{ p: 0.5 }}
               >
                 <AddIcon fontSize="small" />
