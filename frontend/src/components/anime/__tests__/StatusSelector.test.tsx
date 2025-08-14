@@ -44,7 +44,7 @@ describe('StatusSelector', () => {
     fireEvent.mouseDown(screen.getByRole('combobox'));
 
     // Check all options are present
-    expect(screen.getByText('Currently Watching')).toBeInTheDocument();
+    expect(screen.getAllByText('Currently Watching')).toHaveLength(2); // One in select, one in dropdown
     expect(screen.getByText('Completed')).toBeInTheDocument();
     expect(screen.getByText('On Hold')).toBeInTheDocument();
     expect(screen.getByText('Dropped')).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('StatusSelector', () => {
     );
 
     const select = screen.getByRole('combobox');
-    expect(select).toBeDisabled();
+    expect(select).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('renders with different variants and sizes', () => {

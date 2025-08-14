@@ -24,6 +24,7 @@ class User(BaseModel):
     # Relationships
     anime_lists = relationship("UserAnimeList", back_populates="user", cascade="all, delete-orphan")
     jellyfin_activities = relationship("JellyfinActivity", back_populates="user", cascade="all, delete-orphan")
+    search_history = relationship("SearchHistory", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username='{self.username}', name='{self.name}')>"

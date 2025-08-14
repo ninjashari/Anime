@@ -7,6 +7,7 @@ from .anime import Anime
 from .user_anime_list import UserAnimeList
 from .anidb_mapping import AniDBMapping
 from .jellyfin_activity import JellyfinActivity
+from .search_history import SearchHistory
 
 __all__ = [
     "Base",
@@ -16,4 +17,5 @@ __all__ = [
     "UserAnimeList",
     "AniDBMapping",
     "JellyfinActivity",
+    "SearchHistory",
 ]

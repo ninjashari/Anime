@@ -4,6 +4,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AnimeModal from '../AnimeModal';
 import { AnimeListItem } from '../../../types/anime';
 
+
+
 const theme = createTheme();
 
 const renderWithTheme = (component: React.ReactElement) => {
@@ -54,7 +56,11 @@ describe('AnimeModal', () => {
   };
 
   beforeEach(() => {
-    Object.values(mockProps).forEach(mock => mock.mockClear());
+    mockProps.onClose.mockClear();
+    mockProps.onStatusChange.mockClear();
+    mockProps.onProgressUpdate.mockClear();
+    mockProps.onScoreUpdate.mockClear();
+    mockProps.onRemove.mockClear();
   });
 
   it('renders anime information correctly when open', () => {
@@ -187,7 +193,7 @@ describe('AnimeModal', () => {
   });
 
   it('displays "Not set" for missing dates', () => {
-    const animeWithoutDates = {
+    const animeWithoutDates: AnimeListItem = {
       ...mockAnime,
       start_date: undefined,
       finish_date: undefined
@@ -255,7 +261,7 @@ describe('AnimeModal', () => {
       />
     );
 
-    expect(screen.getByDisplayValue('5')).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton')).toHaveValue(5);
     expect(screen.getByText('/ 12')).toBeInTheDocument();
   });
 
@@ -311,9 +317,9 @@ describe('AnimeModal', () => {
   });
 
   it('shows 0/10 for unrated anime', () => {
-    const unratedAnime = {
+    const unratedAnime: AnimeListItem = {
       ...mockAnime,
-      score: null
+      score: undefined
     };
 
     renderWithTheme(

@@ -1,9 +1,19 @@
 import { animeListApi } from '../animeListApi';
-import { api } from '../api';
+import { api, handleApiError } from '../api';
 import { AnimeListResponse, AnimeListItem } from '../../types/anime';
 
-// Mock the api module
-jest.mock('../api');
+// Mock only the api methods, not the handleApiError function
+jest.mock('../api', () => ({
+  ...jest.requireActual('../api'),
+  api: {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+    patch: jest.fn(),
+  }
+}));
+
 const mockedApi = api as jest.Mocked<typeof api>;
 
 const mockAnimeListItem: AnimeListItem = {
