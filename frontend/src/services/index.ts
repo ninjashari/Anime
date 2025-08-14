@@ -2,6 +2,8 @@
 export { api, tokenManager, handleApiError } from './api';
 export { authApi } from './authApi';
 export { malApi } from './malApi';
+export { dashboardApi } from './dashboardApi';
+export { animeListApi } from './animeListApi';
 export type { ApiResponse, ApiError } from './api';
 export type { 
   LoginRequest, 
@@ -17,3 +19,12 @@ export type {
   MALTokenResponse,
   MALUserInfo
 } from './malApi';
+export type {
+  DashboardStats,
+  DashboardResponse,
+  TimeSpent,
+  ScoreDistributionItem,
+  StatusBreakdown,
+  StatCardProps,
+  ScoreDistributionChartProps
+} from '../types/dashboard';
