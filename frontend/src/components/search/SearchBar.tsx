@@ -19,7 +19,7 @@ import {
   TrendingUp as TrendingIcon
 } from '@mui/icons-material';
 import { searchApi, SearchHistoryItem } from '../../services';
-import { useDebounce } from '../../hooks/useDebounce';
+import { useDebounce } from '../../hooks';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -92,7 +92,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     if (query.trim()) {
       onSearch(query.trim());
       setShowDropdown(false);
-      
+
       // Update search history
       setSearchHistory(prev => {
         const filtered = prev.filter(item => item.query !== query.trim());
