@@ -5,6 +5,7 @@ export { malApi } from './malApi';
 export { dashboardApi } from './dashboardApi';
 export { animeListApi } from './animeListApi';
 export { searchApi } from './searchApi';
+export { mappingApi } from './mappingApi';
 export type { ApiResponse, ApiError } from './api';
 export type { 
   LoginRequest, 

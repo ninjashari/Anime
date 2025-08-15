@@ -14,3 +14,6 @@ export { default as RegisterForm } from './auth/RegisterForm';
 
 // MAL Components
 export { default as TokenStatus } from './mal/TokenStatus';
+
+// Mapping Components
+export { MappingPage, MappingTable, MappingEditor } from './mapping';

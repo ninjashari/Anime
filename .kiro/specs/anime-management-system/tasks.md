@@ -248,7 +248,12 @@
   - Write integration tests for webhook handling
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 17. Create mapping management UI
+- [x] 17. Create mapping management UI
+
+
+
+
+
   - Build MappingPage component for viewing current mappings
   - Implement MappingTable component with sortable columns
   - Create MappingEditor component for manual corrections
