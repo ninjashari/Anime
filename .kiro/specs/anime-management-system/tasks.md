@@ -229,7 +229,17 @@
   - Write unit tests for mapping service
   - _Requirements: 6.2, 7.3, 7.4_
 
-- [ ] 16. Build Jellyfin webhook integration
+- [x] 16. Build Jellyfin webhook integration
+
+
+
+
+
+
+
+
+
+
   - Create webhook endpoint for Jellyfin playback events
   - Implement AniDB ID extraction from webhook payload
   - Build episode progress calculation from playback data

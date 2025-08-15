@@ -82,3 +82,32 @@ def auth_headers(test_user):
     
     access_token = auth_service.create_access_token({"sub": str(test_user.id)})
     return {"Authorization": f"Bearer {access_token}"}
+
+
+def create_test_user(db_session, username="testuser", name="Test User", password="testpass123"):
+    """Create a test user."""
+    from app.services.auth_service import auth_service
+    
+    user = auth_service.create_user(
+        db_session,
+        username=username,
+        name=name,
+        password=password
+    )
+    return user
+
+
+def create_test_anime(db_session, mal_id=1, title="Test Anime", episodes=12):
+    """Create a test anime."""
+    from app.models.anime import Anime
+    
+    anime = Anime(
+        mal_id=mal_id,
+        title=title,
+        episodes=episodes,
+        status="finished_airing"
+    )
+    db_session.add(anime)
+    db_session.commit()
+    db_session.refresh(anime)
+    return anime
