@@ -215,7 +215,12 @@
   - Write component tests for search interface
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 8.1, 8.2_
 
-- [ ] 15. Implement AniDB mapping service
+- [x] 15. Implement AniDB mapping service
+
+
+
+
+
   - Create service to load AniDB to MyAnimeList mapping data
   - Build mapping lookup functionality for AniDB IDs
   - Implement mapping confidence scoring system

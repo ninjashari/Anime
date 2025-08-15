@@ -10,6 +10,7 @@ from app.api.mal import router as mal_router
 from app.api.dashboard import router as dashboard_router
 from app.api.anime_list import router as anime_list_router
 from app.api.search import router as search_router
+from app.api.anidb_mapping import router as anidb_mapping_router
 
 app = FastAPI(title="Anime Management System", version="1.0.0")
 
@@ -28,6 +29,7 @@ app.include_router(mal_router, prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
 app.include_router(anime_list_router, prefix="/api")
 app.include_router(search_router, prefix="/api")
+app.include_router(anidb_mapping_router)
 
 
 @app.get("/")
