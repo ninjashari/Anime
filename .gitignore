@@ -88,3 +88,9 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Temporary test files
+test_*.py
+test_*.html
+*_test.py
+*_test.html
