@@ -51,6 +51,9 @@ class SyncService:
             Dictionary with sync results and statistics
         """
         logger.info(f"Starting anime data sync for user {user.id}")
+        logger.debug(f"Force full sync: {force_full_sync}")
+        logger.debug(f"User MAL token exists: {bool(user.mal_access_token)}")
+        logger.debug(f"User last sync: {user.last_mal_sync}")
         
         sync_stats = {
             "user_id": user.id,
@@ -66,11 +69,15 @@ class SyncService:
         
         try:
             # Ensure user has valid MAL token
+            logger.debug("Validating MAL access token...")
             access_token = await self.mal_service.ensure_valid_token(db, user)
+            logger.debug(f"MAL access token validated successfully")
             
             # Fetch user's anime list from MyAnimeList
+            logger.debug("Fetching complete user anime list from MAL...")
             mal_anime_data = await self._fetch_complete_user_anime_list(access_token)
             sync_stats["anime_fetched"] = len(mal_anime_data)
+            logger.debug(f"Fetched {len(mal_anime_data)} anime entries from MAL")
             
             # Process anime data in batches
             for i in range(0, len(mal_anime_data), self.batch_size):

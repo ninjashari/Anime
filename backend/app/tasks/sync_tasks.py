@@ -53,13 +53,20 @@ class SyncUserAnimeTask(DatabaseTask):
             Dictionary with sync results
         """
         logger.info(f"Starting anime sync task for user {user_id}")
+        logger.debug(f"Force full sync: {force_full_sync}")
         
         # Get user
+        logger.debug(f"Fetching user {user_id} from database...")
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
+            logger.error(f"User {user_id} not found in database")
             raise ValueError(f"User {user_id} not found")
         
+        logger.debug(f"User found: {user.username}")
+        logger.debug(f"User has MAL token: {bool(user.mal_access_token)}")
+        
         if not user.mal_access_token:
+            logger.error(f"User {user_id} has no MyAnimeList access token")
             raise ValueError(f"User {user_id} has no MyAnimeList access token")
         
         # Check if sync is needed (unless forced)

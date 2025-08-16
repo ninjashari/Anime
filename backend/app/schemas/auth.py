@@ -3,6 +3,7 @@ Authentication-related Pydantic schemas.
 """
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
 
 class UserRegistration(BaseModel):
@@ -35,7 +36,7 @@ class UserProfile(BaseModel):
     id: int = Field(..., description="User ID")
     username: str = Field(..., description="Username")
     name: str = Field(..., description="User's display name")
-    mal_token_expires_at: Optional[str] = Field(None, description="MyAnimeList token expiration")
+    mal_token_expires_at: Optional[datetime] = Field(None, description="MyAnimeList token expiration")
     
     class Config:
         from_attributes = True

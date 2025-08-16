@@ -43,7 +43,7 @@ const AppLayout: React.FC = () => {
   const isDrawerOpen = isMobile ? mobileOpen : desktopOpen;
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', height: '100vh' }}>
       <Header onMenuClick={handleDrawerToggle} />
       
       <Sidebar
@@ -57,40 +57,43 @@ const AppLayout: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: {
-            xs: 1, // Minimal padding on mobile
-            sm: 2, // Medium padding on tablet
-            md: 3, // Full padding on desktop
-          },
-          width: { 
-            md: desktopOpen ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%' 
-          },
-          ml: { 
-            md: desktopOpen ? `${DRAWER_WIDTH}px` : 0 
-          },
-          transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          // Ensure content doesn't overflow on mobile
-          minWidth: 0,
-          overflow: 'hidden',
+          height: '100vh',
+          overflow: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <Toolbar />
-        <ErrorBoundary>
-          <Box
-            sx={{
-              // Add safe area padding for mobile devices with notches
-              paddingTop: 'env(safe-area-inset-top)',
-              paddingBottom: isMobile ? '80px' : 'env(safe-area-inset-bottom)', // Extra space for mobile nav
-              paddingLeft: 'env(safe-area-inset-left)',
-              paddingRight: 'env(safe-area-inset-right)',
-            }}
-          >
+        <Box
+          sx={{
+            flexGrow: 1,
+            overflow: 'auto',
+            p: {
+              xs: 1, // Minimal padding on mobile
+              sm: 2, // Medium padding on tablet
+              md: 3, // Full padding on desktop
+            },
+            width: { 
+              md: desktopOpen ? `calc(100% - ${DRAWER_WIDTH}px)` : '100%' 
+            },
+            ml: { 
+              md: desktopOpen ? `${DRAWER_WIDTH}px` : 0 
+            },
+            transition: theme.transitions.create(['margin', 'width'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.leavingScreen,
+            }),
+            // Add safe area padding for mobile devices with notches
+            paddingTop: 'env(safe-area-inset-top)',
+            paddingBottom: isMobile ? '80px' : 'env(safe-area-inset-bottom)', // Extra space for mobile nav
+            paddingLeft: 'env(safe-area-inset-left)',
+            paddingRight: 'env(safe-area-inset-right)',
+          }}
+        >
+          <ErrorBoundary>
             <Outlet />
-          </Box>
-        </ErrorBoundary>
+          </ErrorBoundary>
+        </Box>
       </Box>
       
       {/* Mobile bottom navigation */}

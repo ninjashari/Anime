@@ -33,9 +33,7 @@ export const syncApi = {
    */
   syncCurrentUser: async (forceFullSync: boolean = false): Promise<SyncTaskResponse> => {
     try {
-      const response = await api.post<SyncTaskResponse>('/sync/user', null, {
-        params: { force_full_sync: forceFullSync }
-      });
+      const response = await api.post<SyncTaskResponse>(`/sync/user?force_full_sync=${forceFullSync}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error);

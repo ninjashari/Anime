@@ -88,7 +88,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: celery -A app.celery worker --loglevel=info
+    command: celery -A app.core.celery_app worker --loglevel=debug
 
 volumes:
   postgres_data:
