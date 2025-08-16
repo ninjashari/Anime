@@ -317,7 +317,13 @@
   - Write component tests for frontend components
   - _Requirements: 10.1, 10.2, 10.4_
 
-- [ ] 22. Fix MAL endpoint authentication issues
+- [x] 22. Fix MAL endpoint authentication issues
+
+
+
+
+
+
   - Debug and fix 403 errors in MAL endpoint tests
   - Ensure proper authentication middleware for MAL endpoints
   - Update MAL endpoint tests to use proper authentication

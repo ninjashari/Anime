@@ -26,7 +26,6 @@ class Settings(BaseSettings):
     
     # MyAnimeList API settings
     MAL_CLIENT_ID: Optional[str] = os.getenv("MAL_CLIENT_ID")
-    MAL_CLIENT_SECRET: Optional[str] = os.getenv("MAL_CLIENT_SECRET")
     MAL_REDIRECT_URI: Optional[str] = os.getenv("MAL_REDIRECT_URI")
     
     # Jellyfin settings

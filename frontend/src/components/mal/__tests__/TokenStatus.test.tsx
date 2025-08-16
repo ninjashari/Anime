@@ -48,10 +48,10 @@ describe('TokenStatus', () => {
     );
 
     expect(screen.getByText('Failed to check token status: Network error')).toBeInTheDocument();
-    
+
     const retryButton = screen.getByRole('button', { name: /retry/i });
     fireEvent.click(retryButton);
-    
+
     expect(mockOnRetry).toHaveBeenCalled();
   });
 
@@ -65,9 +65,9 @@ describe('TokenStatus', () => {
 
   it('should show not connected status', () => {
     const tokenStatus: MALTokenStatus = {
-      hasToken: false,
-      tokenExpiresAt: null,
-      isExpired: false,
+      has_tokens: false,
+      expires_at: null,
+      is_expired: false,
     };
 
     renderWithTheme(
@@ -83,9 +83,9 @@ describe('TokenStatus', () => {
     futureDate.setDate(futureDate.getDate() + 30);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: futureDate.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: futureDate.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -102,9 +102,9 @@ describe('TokenStatus', () => {
     pastDate.setDate(pastDate.getDate() - 5);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: pastDate.toISOString(),
-      isExpired: true,
+      has_tokens: true,
+      expires_at: pastDate.toISOString(),
+      is_expired: true,
       username: 'testuser',
     };
 
@@ -121,9 +121,9 @@ describe('TokenStatus', () => {
     futureDate.setDate(futureDate.getDate() + 30);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: futureDate.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: futureDate.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -148,9 +148,9 @@ describe('TokenStatus', () => {
     futureDate.setDate(futureDate.getDate() + 30);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: futureDate.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: futureDate.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -169,9 +169,9 @@ describe('TokenStatus', () => {
     futureDate.setDate(futureDate.getDate() + 30);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: futureDate.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: futureDate.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -190,9 +190,9 @@ describe('TokenStatus', () => {
     futureDate.setDate(futureDate.getDate() + 30);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: futureDate.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: futureDate.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -209,9 +209,9 @@ describe('TokenStatus', () => {
     futureDate.setDate(futureDate.getDate() + 30);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: futureDate.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: futureDate.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -228,9 +228,9 @@ describe('TokenStatus', () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: tomorrow.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: tomorrow.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -247,9 +247,9 @@ describe('TokenStatus', () => {
     today.setHours(23, 59, 59, 999);
 
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: today.toISOString(),
-      isExpired: false,
+      has_tokens: true,
+      expires_at: today.toISOString(),
+      is_expired: false,
       username: 'testuser',
     };
 
@@ -263,9 +263,9 @@ describe('TokenStatus', () => {
 
   it('should handle unknown expiry date', () => {
     const tokenStatus: MALTokenStatus = {
-      hasToken: true,
-      tokenExpiresAt: null,
-      isExpired: false,
+      has_tokens: true,
+      expires_at: null,
+      is_expired: false,
       username: 'testuser',
     };
 

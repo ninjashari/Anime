@@ -3,7 +3,7 @@ MyAnimeList API integration service.
 """
 import asyncio
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any, List
 from urllib.parse import urlencode
 
@@ -58,14 +58,13 @@ class MyAnimeListService:
     
     def __init__(self):
         self.client_id = settings.MAL_CLIENT_ID
-        self.client_secret = settings.MAL_CLIENT_SECRET
         self.redirect_uri = settings.MAL_REDIRECT_URI
         self.base_url = "https://api.myanimelist.net/v2"
         self.auth_url = "https://myanimelist.net/v1/oauth2"
         self.rate_limiter = RateLimiter()
         self.http_client = RetryableHTTPClient(config=MAL_API_RETRY_CONFIG)
         
-        if not all([self.client_id, self.client_secret, self.redirect_uri]):
+        if not all([self.client_id, self.redirect_uri]):
             raise ConfigurationError("MyAnimeList API credentials not configured")
         
         logger.info("MyAnimeList service initialized")
@@ -100,7 +99,6 @@ class MyAnimeListService:
         
         data = {
             "client_id": self.client_id,
-            "client_secret": self.client_secret,
             "code": code,
             "code_verifier": state,  # Using state as code verifier
             "grant_type": "authorization_code",
@@ -149,7 +147,6 @@ class MyAnimeListService:
         
         data = {
             "client_id": self.client_id,
-            "client_secret": self.client_secret,
             "grant_type": "refresh_token",
             "refresh_token": refresh_token
         }
@@ -407,7 +404,7 @@ class MyAnimeListService:
         """Store MyAnimeList tokens in user record."""
         user.mal_access_token = access_token
         user.mal_refresh_token = refresh_token
-        user.mal_token_expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+        user.mal_token_expires_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
         db.commit()
     
     async def ensure_valid_token(self, db: Session, user: User) -> str:
@@ -416,26 +413,34 @@ class MyAnimeListService:
             raise AuthenticationError("User has no MyAnimeList access token")
         
         # Check if token is expired (with 5 minute buffer)
-        if user.mal_token_expires_at and user.mal_token_expires_at <= datetime.utcnow() + timedelta(minutes=5):
-            if not user.mal_refresh_token:
-                raise AuthenticationError("Access token expired and no refresh token available")
+        if user.mal_token_expires_at:
+            from datetime import timezone
+            now = datetime.now(timezone.utc) + timedelta(minutes=5)
+            expires_at = user.mal_token_expires_at
+            if expires_at.tzinfo is None:
+                # If stored datetime is naive, assume it's UTC
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
             
-            logger.info(f"Refreshing expired MAL token for user {user.id}")
-            
-            try:
-                # Refresh the token
-                token_data = await self.refresh_access_token(user.mal_refresh_token)
-                self.store_tokens(
-                    db, 
-                    user, 
-                    token_data["access_token"], 
-                    token_data.get("refresh_token", user.mal_refresh_token),
-                    token_data["expires_in"]
-                )
-                logger.info(f"Successfully refreshed MAL token for user {user.id}")
-            except Exception as e:
-                logger.error(f"Failed to refresh MAL token for user {user.id}", exc_info=True)
-                raise
+            if expires_at <= now:
+                if not user.mal_refresh_token:
+                    raise AuthenticationError("Access token expired and no refresh token available")
+                
+                logger.info(f"Refreshing expired MAL token for user {user.id}")
+                
+                try:
+                    # Refresh the token
+                    token_data = await self.refresh_access_token(user.mal_refresh_token)
+                    self.store_tokens(
+                        db, 
+                        user, 
+                        token_data["access_token"], 
+                        token_data.get("refresh_token", user.mal_refresh_token),
+                        token_data["expires_in"]
+                    )
+                    logger.info(f"Successfully refreshed MAL token for user {user.id}")
+                except Exception as e:
+                    logger.error(f"Failed to refresh MAL token for user {user.id}", exc_info=True)
+                    raise
         
         return user.mal_access_token
 

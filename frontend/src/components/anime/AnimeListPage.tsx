@@ -225,7 +225,6 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
       <Box sx={{ mb: { xs: 3, sm: 4 } }}>
         <Box sx={{ 
           display: 'flex', 
-          alignItems: 'center', 
           gap: { xs: 1, sm: 2 }, 
           mb: 2,
           flexDirection: { xs: 'column', sm: 'row' },

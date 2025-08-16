@@ -92,7 +92,7 @@ const TokenStatus: React.FC<TokenStatusProps> = ({
   }
 
   const getStatusChip = () => {
-    if (!tokenStatus.hasToken) {
+    if (!tokenStatus.has_tokens) {
       return (
         <Chip
           icon={<ErrorIcon />}
@@ -103,7 +103,7 @@ const TokenStatus: React.FC<TokenStatusProps> = ({
       );
     }
 
-    if (tokenStatus.isExpired) {
+    if (tokenStatus.is_expired) {
       return (
         <Chip
           icon={<WarningIcon />}
@@ -154,14 +154,14 @@ const TokenStatus: React.FC<TokenStatusProps> = ({
         </Box>
 
         <Stack spacing={2}>
-          {tokenStatus.hasToken ? (
+          {tokenStatus.has_tokens ? (
             <>
               <Box>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Token Status
                 </Typography>
                 <Typography variant="body1">
-                  {formatExpiryDate(tokenStatus.tokenExpiresAt)}
+                  {formatExpiryDate(tokenStatus.expires_at)}
                 </Typography>
               </Box>
 

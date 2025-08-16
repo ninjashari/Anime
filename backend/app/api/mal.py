@@ -141,7 +141,7 @@ async def refresh_token(
 
 @router.get("/animelist", response_model=Dict[str, Any])
 async def get_anime_list(
-    status: str = None,
+    anime_status: str = None,
     limit: int = 100,
     offset: int = 0,
     current_user: User = Depends(get_current_user),
@@ -153,7 +153,7 @@ async def get_anime_list(
         access_token = await service.ensure_valid_token(db, current_user)
         anime_list = await service.get_user_anime_list(
             access_token, 
-            status=status,
+            status=anime_status,
             limit=limit,
             offset=offset
         )
@@ -292,8 +292,14 @@ async def get_token_status(
     is_expired = False
     
     if has_tokens and current_user.mal_token_expires_at:
-        from datetime import datetime
-        is_expired = current_user.mal_token_expires_at <= datetime.utcnow()
+        from datetime import datetime, timezone
+        # Ensure both datetimes are timezone-aware for comparison
+        now = datetime.now(timezone.utc)
+        expires_at = current_user.mal_token_expires_at
+        if expires_at.tzinfo is None:
+            # If stored datetime is naive, assume it's UTC
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        is_expired = expires_at <= now
     
     return {
         "has_tokens": has_tokens,

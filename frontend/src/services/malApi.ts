@@ -2,9 +2,9 @@ import { api, handleApiError } from './api';
 
 // Types for MyAnimeList API integration
 export interface MALTokenStatus {
-  hasToken: boolean;
-  tokenExpiresAt: string | null;
-  isExpired: boolean;
+  has_tokens: boolean;
+  expires_at: string | null;
+  is_expired: boolean;
   username?: string;
 }
 

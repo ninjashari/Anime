@@ -17,11 +17,13 @@ import {
 import {
   Launch as LaunchIcon,
   CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon
+  Error as ErrorIcon,
+  Sync as SyncIcon
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 import { malApi, MALTokenStatus, MALUserInfo } from '../services/malApi';
+import { syncApi } from '../services/syncApi';
 import TokenStatus from '../components/mal/TokenStatus';
 
 const TokenSetup: React.FC = () => {
@@ -52,7 +54,7 @@ const TokenSetup: React.FC = () => {
   } = useQuery<MALUserInfo>({
     queryKey: ['mal-user-info'],
     queryFn: malApi.getUserInfo,
-    enabled: tokenStatus?.hasToken && !tokenStatus?.isExpired,
+    enabled: tokenStatus?.has_tokens && !tokenStatus?.is_expired,
     retry: 1
   });
 
@@ -101,11 +103,23 @@ const TokenSetup: React.FC = () => {
     }
   });
 
+  // Mutation for syncing anime data
+  const syncMutation = useMutation({
+    mutationFn: (forceFullSync: boolean = false) => syncApi.syncCurrentUser(forceFullSync),
+    onSuccess: (data) => {
+      setSuccessMessage(`Anime sync started! Task ID: ${data.task_id}`);
+      setTimeout(() => setSuccessMessage(''), 10000);
+    },
+    onError: (error: any) => {
+      setErrorMessage(error.message || 'Failed to start sync');
+    }
+  });
+
   // Check if we're already connected
   useEffect(() => {
-    if (tokenStatus?.hasToken && !tokenStatus?.isExpired) {
+    if (tokenStatus?.has_tokens && !tokenStatus?.is_expired) {
       setActiveStep(3); // Connected step
-    } else if (tokenStatus?.hasToken && tokenStatus?.isExpired) {
+    } else if (tokenStatus?.has_tokens && tokenStatus?.is_expired) {
       setActiveStep(2); // Token expired step
     } else {
       setActiveStep(0); // Not connected step
@@ -137,6 +151,11 @@ const TokenSetup: React.FC = () => {
   const handleRetryStatus = () => {
     setErrorMessage('');
     refetchStatus();
+  };
+
+  const handleSyncAnime = (forceFullSync: boolean = false) => {
+    setErrorMessage('');
+    syncMutation.mutate(forceFullSync);
   };
 
   const steps = [
@@ -208,12 +227,36 @@ const TokenSetup: React.FC = () => {
       label: 'Connected',
       content: (
         <Box>
-          <Alert severity="success" icon={<CheckCircleIcon />}>
+          <Alert severity="success" icon={<CheckCircleIcon />} sx={{ mb: 2 }}>
             <Typography variant="body2">
               Your MyAnimeList account is successfully connected! 
               You can now sync your anime lists and track your progress automatically.
             </Typography>
           </Alert>
+          <Typography variant="body2" paragraph>
+            To see your anime lists, you need to sync your data from MyAnimeList:
+          </Typography>
+          <Box display="flex" gap={2} flexWrap="wrap">
+            <Button
+              variant="contained"
+              startIcon={<SyncIcon />}
+              onClick={() => handleSyncAnime(false)}
+              disabled={syncMutation.isPending}
+            >
+              {syncMutation.isPending ? 'Syncing...' : 'Sync My Anime Lists'}
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<SyncIcon />}
+              onClick={() => handleSyncAnime(true)}
+              disabled={syncMutation.isPending}
+            >
+              Full Sync (Slower)
+            </Button>
+          </Box>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+            Regular sync updates recent changes. Full sync re-downloads all your anime data.
+          </Typography>
         </Box>
       )
     }
@@ -277,7 +320,7 @@ const TokenSetup: React.FC = () => {
             ))}
           </Stepper>
 
-          {tokenStatus?.hasToken && tokenStatus?.isExpired && (
+          {tokenStatus?.has_tokens && tokenStatus?.is_expired && (
             <Box mt={3}>
               <Alert severity="warning" icon={<ErrorIcon />}>
                 <Typography variant="body2">

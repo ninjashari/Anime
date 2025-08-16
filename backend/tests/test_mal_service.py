@@ -50,7 +50,6 @@ class TestMyAnimeListService:
         """Set up test fixtures."""
         with patch('app.services.mal_service.settings') as mock_settings:
             mock_settings.MAL_CLIENT_ID = "test_client_id"
-            mock_settings.MAL_CLIENT_SECRET = "test_client_secret"
             mock_settings.MAL_REDIRECT_URI = "http://localhost:3005/auth/callback"
             self.service = MyAnimeListService()
     
@@ -58,7 +57,6 @@ class TestMyAnimeListService:
         """Test that service raises error when credentials are missing."""
         with patch('app.services.mal_service.settings') as mock_settings:
             mock_settings.MAL_CLIENT_ID = None
-            mock_settings.MAL_CLIENT_SECRET = "secret"
             mock_settings.MAL_REDIRECT_URI = "uri"
             
             with pytest.raises(ValueError, match="MyAnimeList API credentials not configured"):

@@ -1,7 +1,8 @@
 /**
  * Custom hook for responsive design utilities
  */
-import { useTheme, useMediaQuery } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 import { Breakpoint } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 

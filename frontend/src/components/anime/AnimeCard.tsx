@@ -103,7 +103,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
         flexDirection: 'column',
         borderRadius: { xs: 2, sm: 1 },
       }}>
-        <Skeleton variant="rectangular" height={{ xs: 160, sm: 200 }} />
+        <Skeleton variant="rectangular" height={isMobile ? 160 : 200} />
         <CardContent sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
           <Skeleton variant="text" height={isMobile ? 24 : 28} />
           <Skeleton variant="text" height={isMobile ? 16 : 20} width="60%" />
@@ -278,7 +278,6 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
         {/* Score */}
         <Box sx={{ 
           display: 'flex', 
-          alignItems: 'center', 
           mb: { xs: 0.5, sm: 1 },
           flexDirection: { xs: 'column', sm: 'row' },
           alignItems: { xs: 'flex-start', sm: 'center' },
