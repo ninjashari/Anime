@@ -20,6 +20,7 @@ class User(BaseModel):
     mal_access_token = Column(Text, nullable=True)
     mal_refresh_token = Column(Text, nullable=True)
     mal_token_expires_at = Column(DateTime(timezone=True), nullable=True)
+    last_mal_sync = Column(DateTime(timezone=True), nullable=True)
     
     # Relationships
     anime_lists = relationship("UserAnimeList", back_populates="user", cascade="all, delete-orphan")
