@@ -74,8 +74,14 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
-      <Box mb={4}>
+    <Container 
+      maxWidth="xl" 
+      sx={{ 
+        py: { xs: 2, sm: 3 },
+        px: { xs: 1, sm: 2 },
+      }}
+    >
+      <Box mb={{ xs: 3, sm: 4 }}>
         <Typography 
           variant="h4" 
           component="h1" 
@@ -83,7 +89,8 @@ const Dashboard: React.FC = () => {
           sx={{ 
             fontWeight: 'bold',
             color: 'primary.main',
-            mb: 1
+            mb: 1,
+            fontSize: { xs: '1.75rem', sm: '2.125rem' },
           }}
         >
           Dashboard
@@ -91,15 +98,18 @@ const Dashboard: React.FC = () => {
         <Typography 
           variant="subtitle1" 
           color="text.secondary"
-          sx={{ mb: 3 }}
+          sx={{ 
+            mb: 3,
+            fontSize: { xs: '0.9rem', sm: '1rem' },
+          }}
         >
           Your anime watching statistics and progress overview
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* Statistics Cards */}
-        <Grid item xs={12} sm={6} md={4} lg={2}>
+      <Grid container spacing={{ xs: 2, sm: 3 }}>
+        {/* Statistics Cards - Responsive grid */}
+        <Grid item xs={6} sm={6} md={4} lg={2}>
           <StatCard
             title="Total Anime"
             value={stats?.total_anime_count ?? 0}
@@ -108,7 +118,7 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4} lg={2}>
+        <Grid item xs={6} sm={6} md={4} lg={2}>
           <StatCard
             title="Episodes Watched"
             value={stats?.total_episodes_watched ?? 0}
@@ -117,7 +127,7 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4} lg={2}>
+        <Grid item xs={6} sm={6} md={4} lg={2}>
           <StatCard
             title="Time Spent"
             value={stats ? formatTimeSpent(stats.time_spent_watching) : '0 min'}
@@ -127,7 +137,7 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4} lg={2}>
+        <Grid item xs={6} sm={6} md={4} lg={2}>
           <StatCard
             title="Time to Complete"
             value={stats ? formatTimeSpent(stats.time_to_complete_planned) : '0 min'}
@@ -137,7 +147,7 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4} lg={2}>
+        <Grid item xs={6} sm={6} md={4} lg={2}>
           <StatCard
             title="Mean Score"
             value={stats?.mean_score ? stats.mean_score.toFixed(1) : 'N/A'}
@@ -147,7 +157,7 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4} lg={2}>
+        <Grid item xs={6} sm={6} md={4} lg={2}>
           <StatCard
             title="Completed"
             value={stats?.status_breakdown.completed ?? 0}
@@ -157,7 +167,7 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
 
-        {/* Score Distribution Chart */}
+        {/* Score Distribution Chart - Full width on mobile */}
         <Grid item xs={12} lg={8}>
           <ScoreDistributionChart
             data={stats?.score_distribution ?? []}
@@ -165,31 +175,31 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
 
-        {/* Status Breakdown */}
+        {/* Status Breakdown - Responsive layout */}
         <Grid item xs={12} lg={4}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+          <Grid container spacing={{ xs: 2, sm: 2 }}>
+            <Grid item xs={12} sm={6} lg={12}>
               <StatCard
                 title="Currently Watching"
                 value={stats?.status_breakdown.watching ?? 0}
                 loading={loading}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6} lg={12}>
               <StatCard
                 title="Plan to Watch"
                 value={stats?.status_breakdown.plan_to_watch ?? 0}
                 loading={loading}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={6} sm={6} lg={6}>
               <StatCard
                 title="On Hold"
                 value={stats?.status_breakdown.on_hold ?? 0}
                 loading={loading}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={6} sm={6} lg={6}>
               <StatCard
                 title="Dropped"
                 value={stats?.status_breakdown.dropped ?? 0}

@@ -220,11 +220,25 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
   );
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+      <Box sx={{ mb: { xs: 3, sm: 4 } }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: { xs: 1, sm: 2 }, 
+          mb: 2,
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-start', sm: 'center' },
+        }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            sx={{ 
+              fontWeight: 700,
+              fontSize: { xs: '1.75rem', sm: '2.125rem' },
+            }}
+          >
             {title}
           </Typography>
           <Chip
@@ -232,7 +246,8 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
             sx={{
               backgroundColor: getStatusColor(status),
               color: 'white',
-              fontWeight: 600
+              fontWeight: 600,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
             }}
           />
         </Box>
@@ -240,7 +255,7 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
         {/* Controls */}
         <Box sx={{ 
           display: 'flex', 
-          gap: 2, 
+          gap: { xs: 1, sm: 2 }, 
           flexWrap: 'wrap',
           alignItems: 'center',
           mb: 2
@@ -251,7 +266,10 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
             value={searchQuery}
             onChange={handleSearchChange}
             size="small"
-            sx={{ minWidth: 250 }}
+            sx={{ 
+              minWidth: { xs: '100%', sm: 250 },
+              order: { xs: 1, sm: 0 },
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -262,7 +280,7 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
           />
 
           {/* Sort */}
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          <FormControl size="small" sx={{ minWidth: { xs: 120, sm: 150 } }}>
             <InputLabel>Sort by</InputLabel>
             <Select
               value={sortBy}
@@ -284,10 +302,14 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
             icon={<SortIcon />}
             variant="outlined"
             clickable
+            size={theme.breakpoints.down('sm') ? 'small' : 'medium'}
           />
 
-          {/* View mode toggle */}
-          <Box sx={{ display: 'flex', ml: 'auto' }}>
+          {/* View mode toggle - Hide on mobile */}
+          <Box sx={{ 
+            display: { xs: 'none', sm: 'flex' }, 
+            ml: 'auto' 
+          }}>
             <Chip
               label="Grid"
               icon={<ViewModuleIcon />}
@@ -332,11 +354,11 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
       ) : (
         <>
           {/* Anime grid */}
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, sm: 3 }}>
             {filteredAnimeList.map((anime) => (
               <Grid 
                 item 
-                xs={12} 
+                xs={6} // 2 columns on mobile
                 sm={viewMode === 'grid' ? 6 : 12} 
                 md={viewMode === 'grid' ? 4 : 12} 
                 lg={viewMode === 'grid' ? 3 : 12} 
@@ -382,8 +404,13 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
         aria-label="add anime"
         sx={{
           position: 'fixed',
-          bottom: 24,
-          right: 24
+          bottom: { xs: 16, sm: 24 },
+          right: { xs: 16, sm: 24 },
+          width: { xs: 56, sm: 56 },
+          height: { xs: 56, sm: 56 },
+          // Add safe area padding for mobile devices
+          marginBottom: 'env(safe-area-inset-bottom)',
+          marginRight: 'env(safe-area-inset-right)',
         }}
         onClick={() => {
           // Navigate to search page

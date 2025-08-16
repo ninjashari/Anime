@@ -3,6 +3,7 @@ import { Box, Toolbar, useTheme, useMediaQuery } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import MobileNavigation from './MobileNavigation';
 import ErrorBoundary from '../common/ErrorBoundary';
 
 const DRAWER_WIDTH = 240;
@@ -82,7 +83,7 @@ const AppLayout: React.FC = () => {
             sx={{
               // Add safe area padding for mobile devices with notches
               paddingTop: 'env(safe-area-inset-top)',
-              paddingBottom: 'env(safe-area-inset-bottom)',
+              paddingBottom: isMobile ? '80px' : 'env(safe-area-inset-bottom)', // Extra space for mobile nav
               paddingLeft: 'env(safe-area-inset-left)',
               paddingRight: 'env(safe-area-inset-right)',
             }}
@@ -91,6 +92,9 @@ const AppLayout: React.FC = () => {
           </Box>
         </ErrorBoundary>
       </Box>
+      
+      {/* Mobile bottom navigation */}
+      {isMobile && <MobileNavigation />}
     </Box>
   );
 };

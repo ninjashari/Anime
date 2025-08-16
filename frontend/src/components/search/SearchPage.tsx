@@ -151,15 +151,22 @@ const SearchPage: React.FC = () => {
   }, []);
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container 
+      maxWidth="xl" 
+      sx={{ 
+        py: { xs: 2, sm: 3 },
+        px: { xs: 1, sm: 2 },
+      }}
+    >
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: { xs: 3, sm: 4 } }}>
         <Typography
           variant="h4"
           component="h1"
           sx={{
             fontWeight: 700,
             mb: 1,
+            fontSize: { xs: '1.75rem', sm: '2.125rem' },
             background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
@@ -168,7 +175,13 @@ const SearchPage: React.FC = () => {
         >
           Search Anime
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography 
+          variant="body1" 
+          color="text.secondary"
+          sx={{
+            fontSize: { xs: '0.9rem', sm: '1rem' },
+          }}
+        >
           Discover new anime and add them to your lists
         </Typography>
       </Box>
@@ -177,15 +190,16 @@ const SearchPage: React.FC = () => {
       <Paper
         elevation={2}
         sx={{
-          p: 3,
-          mb: 4,
+          p: { xs: 2, sm: 3 },
+          mb: { xs: 3, sm: 4 },
           background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
+          borderRadius: { xs: 2, sm: 1 },
         }}
       >
         <SearchBar
           onSearch={(searchQuery) => handleSearch(searchQuery, false)}
           placeholder="Search for anime by title..."
-          autoFocus
+          autoFocus={!theme.breakpoints.down('sm')} // Don't auto-focus on mobile to prevent keyboard popup
           loading={loading}
         />
       </Paper>

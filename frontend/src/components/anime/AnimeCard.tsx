@@ -13,6 +13,7 @@ import {
   Chip,
   Skeleton,
   useTheme,
+  useMediaQuery,
   alpha
 } from '@mui/material';
 import {
@@ -48,6 +49,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
   draggable = false
 }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -95,13 +97,18 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
 
   if (loading) {
     return (
-      <Card sx={{ height: 400, display: 'flex', flexDirection: 'column' }}>
-        <Skeleton variant="rectangular" height={200} />
-        <CardContent sx={{ flexGrow: 1 }}>
-          <Skeleton variant="text" height={28} />
-          <Skeleton variant="text" height={20} width="60%" />
+      <Card sx={{ 
+        height: { xs: 320, sm: 400 }, 
+        display: 'flex', 
+        flexDirection: 'column',
+        borderRadius: { xs: 2, sm: 1 },
+      }}>
+        <Skeleton variant="rectangular" height={{ xs: 160, sm: 200 }} />
+        <CardContent sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+          <Skeleton variant="text" height={isMobile ? 24 : 28} />
+          <Skeleton variant="text" height={isMobile ? 16 : 20} width="60%" />
           <Box sx={{ mt: 2 }}>
-            <Skeleton variant="rectangular" height={32} />
+            <Skeleton variant="rectangular" height={isMobile ? 28 : 32} />
           </Box>
         </CardContent>
       </Card>
@@ -111,25 +118,28 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
   return (
     <Card
       sx={{
-        height: 400,
+        height: { xs: 320, sm: 400 },
         display: 'flex',
         flexDirection: 'column',
         cursor: draggable ? 'grab' : 'pointer',
         transition: 'all 0.2s ease-in-out',
         position: 'relative',
+        borderRadius: { xs: 2, sm: 1 },
+        boxShadow: isMobile ? theme.shadows[2] : theme.shadows[1],
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: theme.shadows[8],
+          transform: isMobile ? 'none' : 'translateY(-4px)',
+          boxShadow: isMobile ? theme.shadows[3] : theme.shadows[8],
           '& .anime-card-overlay': {
-            opacity: 1
+            opacity: isMobile ? 0 : 1
           }
         },
         '&:active': {
-          cursor: draggable ? 'grabbing' : 'pointer'
+          cursor: draggable ? 'grabbing' : 'pointer',
+          transform: isMobile ? 'scale(0.98)' : 'translateY(-4px)',
         }
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
+      onMouseLeave={() => !isMobile && setIsHovered(false)}
       onClick={() => onViewDetails(anime)}
       draggable={draggable}
     >
@@ -137,19 +147,20 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
       <Box
         sx={{
           position: 'absolute',
-          top: 8,
-          left: 8,
+          top: { xs: 6, sm: 8 },
+          left: { xs: 6, sm: 8 },
           zIndex: 2
         }}
       >
         <Chip
-          size="small"
+          size={isMobile ? "small" : "small"}
           label={anime.status.replace('_', ' ').toUpperCase()}
           sx={{
             backgroundColor: getStatusColor(anime.status),
             color: 'white',
             fontWeight: 600,
-            fontSize: '0.7rem'
+            fontSize: { xs: '0.6rem', sm: '0.7rem' },
+            height: { xs: 20, sm: 24 },
           }}
         />
       </Box>
@@ -158,30 +169,32 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
       <Box
         sx={{
           position: 'absolute',
-          top: 8,
-          right: 8,
+          top: { xs: 6, sm: 8 },
+          right: { xs: 6, sm: 8 },
           zIndex: 2
         }}
       >
         <IconButton
-          size="small"
+          size={isMobile ? "medium" : "small"}
           onClick={handleMenuOpen}
           aria-label="More options"
           sx={{
             backgroundColor: alpha(theme.palette.background.paper, 0.8),
+            width: { xs: 36, sm: 32 },
+            height: { xs: 36, sm: 32 },
             '&:hover': {
               backgroundColor: alpha(theme.palette.background.paper, 0.9)
             }
           }}
         >
-          <MoreVertIcon fontSize="small" />
+          <MoreVertIcon fontSize={isMobile ? "medium" : "small"} />
         </IconButton>
       </Box>
 
       {/* Anime image */}
       <CardMedia
         component="img"
-        height="200"
+        height={isMobile ? "160" : "200"}
         image={anime.anime.image_url || '/placeholder-anime.jpg'}
         alt={anime.anime.title}
         sx={{
@@ -194,58 +207,65 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
         }}
       />
 
-      {/* Hover overlay */}
-      <Box
-        className="anime-card-overlay"
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 200,
-          background: `linear-gradient(to bottom, transparent 0%, ${alpha(theme.palette.common.black, 0.7)} 100%)`,
-          opacity: 0,
-          transition: 'opacity 0.2s ease-in-out',
-          display: 'flex',
-          alignItems: 'flex-end',
-          p: 2,
-          zIndex: 1
-        }}
-      >
-        <Typography
-          variant="body2"
+      {/* Hover overlay - hidden on mobile */}
+      {!isMobile && (
+        <Box
+          className="anime-card-overlay"
           sx={{
-            color: 'white',
-            fontWeight: 500,
-            textShadow: '0 1px 2px rgba(0,0,0,0.8)'
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 200,
+            background: `linear-gradient(to bottom, transparent 0%, ${alpha(theme.palette.common.black, 0.7)} 100%)`,
+            opacity: 0,
+            transition: 'opacity 0.2s ease-in-out',
+            display: 'flex',
+            alignItems: 'flex-end',
+            p: 2,
+            zIndex: 1
           }}
         >
-          Click for details
-        </Typography>
-      </Box>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'white',
+              fontWeight: 500,
+              textShadow: '0 1px 2px rgba(0,0,0,0.8)'
+            }}
+          >
+            Click for details
+          </Typography>
+        </Box>
+      )}
 
-      <CardContent sx={{ flexGrow: 1, p: 2 }}>
+      <CardContent sx={{ 
+        flexGrow: 1, 
+        p: { xs: 1.5, sm: 2 },
+        '&:last-child': { pb: { xs: 1.5, sm: 2 } }
+      }}>
         {/* Title */}
         <Typography
-          variant="h6"
+          variant={isMobile ? "subtitle1" : "h6"}
           component="h3"
           sx={{
             fontWeight: 600,
-            mb: 1,
+            mb: { xs: 0.5, sm: 1 },
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             lineHeight: 1.2,
-            minHeight: '2.4em'
+            minHeight: { xs: '2.2em', sm: '2.4em' },
+            fontSize: { xs: '0.9rem', sm: '1.25rem' },
           }}
         >
           {anime.anime.title}
         </Typography>
 
         {/* Progress */}
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: { xs: 1, sm: 2 } }}>
           <ProgressUpdater
             currentProgress={anime.episodes_watched}
             totalEpisodes={anime.anime.episodes || undefined}
@@ -256,24 +276,47 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
         </Box>
 
         {/* Score */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <Typography variant="body2" sx={{ mr: 1, minWidth: 45 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          mb: { xs: 0.5, sm: 1 },
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-start', sm: 'center' },
+        }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              mr: { xs: 0, sm: 1 }, 
+              mb: { xs: 0.5, sm: 0 },
+              minWidth: { xs: 'auto', sm: 45 },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+            }}
+          >
             Score:
           </Typography>
-          <Rating
-            value={anime.score || 0}
-            onChange={handleScoreChange}
-            max={10}
-            size="small"
-            precision={1}
-          />
-          <Typography variant="body2" sx={{ ml: 1, color: 'text.secondary' }}>
-            {anime.score || 'Not rated'}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Rating
+              value={anime.score || 0}
+              onChange={handleScoreChange}
+              max={10}
+              size={isMobile ? "small" : "small"}
+              precision={1}
+            />
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                ml: 1, 
+                color: 'text.secondary',
+                fontSize: { xs: '0.7rem', sm: '0.875rem' },
+              }}
+            >
+              {anime.score || 'Not rated'}
+            </Typography>
+          </Box>
         </Box>
 
-        {/* Dates */}
-        {(anime.start_date || anime.finish_date) && (
+        {/* Dates - Hide on mobile to save space */}
+        {!isMobile && (anime.start_date || anime.finish_date) && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <CalendarIcon fontSize="small" color="action" />
             <Typography variant="caption" color="text.secondary">
@@ -291,6 +334,16 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
         onClick={(e) => e.stopPropagation()}
+        PaperProps={{
+          sx: {
+            minWidth: isMobile ? 180 : 160,
+            '& .MuiMenuItem-root': {
+              minHeight: isMobile ? 48 : 40,
+              px: isMobile ? 3 : 2,
+              fontSize: isMobile ? '1rem' : '0.875rem',
+            }
+          }
+        }}
       >
         <MenuItem onClick={handleViewDetails}>
           <InfoIcon fontSize="small" sx={{ mr: 1 }} />
