@@ -21,7 +21,7 @@ import MALCallback from './pages/MALCallback';
 import Search from './pages/Search';
 import Mappings from './pages/Mappings';
 
-// Create a theme instance
+// Create a theme instance with responsive design enhancements
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -32,11 +32,103 @@ const theme = createTheme({
       main: '#dc004e',
     },
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
+  typography: {
+    // Responsive typography
+    h1: {
+      fontSize: '2.5rem',
+      '@media (max-width:600px)': {
+        fontSize: '2rem',
+      },
+    },
+    h2: {
+      fontSize: '2rem',
+      '@media (max-width:600px)': {
+        fontSize: '1.75rem',
+      },
+    },
+    h3: {
+      fontSize: '1.75rem',
+      '@media (max-width:600px)': {
+        fontSize: '1.5rem',
+      },
+    },
+    h4: {
+      fontSize: '1.5rem',
+      '@media (max-width:600px)': {
+        fontSize: '1.25rem',
+      },
+    },
+    h5: {
+      fontSize: '1.25rem',
+      '@media (max-width:600px)': {
+        fontSize: '1.125rem',
+      },
+    },
+    h6: {
+      fontSize: '1.125rem',
+      '@media (max-width:600px)': {
+        fontSize: '1rem',
+      },
+    },
+  },
   components: {
     MuiDrawer: {
       styleOverrides: {
         paper: {
           backgroundColor: '#f5f5f5',
+        },
+      },
+    },
+    // Enhanced button styles for mobile
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          minHeight: '44px', // Minimum touch target size
+          '@media (max-width:600px)': {
+            minHeight: '48px', // Larger touch targets on mobile
+            fontSize: '1rem',
+          },
+        },
+      },
+    },
+    // Enhanced fab styles for mobile
+    MuiFab: {
+      styleOverrides: {
+        root: {
+          '@media (max-width:600px)': {
+            width: '56px',
+            height: '56px',
+          },
+        },
+      },
+    },
+    // Enhanced card styles for mobile
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          '@media (max-width:600px)': {
+            borderRadius: '12px',
+          },
+        },
+      },
+    },
+    // Enhanced container padding for mobile
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          '@media (max-width:600px)': {
+            paddingLeft: '16px',
+            paddingRight: '16px',
+          },
         },
       },
     },

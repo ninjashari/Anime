@@ -31,6 +31,7 @@ interface SidebarProps {
   open: boolean;
   onClose: () => void;
   drawerWidth?: number;
+  isMobile?: boolean;
 }
 
 interface NavItem {
@@ -102,15 +103,15 @@ const navigationItems: NavItem[] = [
   },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth = 240 }) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth = 240, isMobile = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(['My Lists']);
+  const [expandedItems, setExpandedItems] = useState<string[]>(isMobile ? [] : ['My Lists']);
 
   const handleNavigation = (path: string) => {
     navigate(path);
     // Close drawer on mobile after navigation
-    if (window.innerWidth < 600) {
+    if (isMobile) {
       onClose();
     }
   };
@@ -134,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth = 240 }) =
 
     return (
       <React.Fragment key={item.text}>
-        <ListItem disablePadding sx={{ pl: depth * 2 }}>
+        <ListItem disablePadding sx={{ pl: depth * (isMobile ? 1.5 : 2) }}>
           <ListItemButton
             selected={active}
             onClick={() => {
@@ -145,9 +146,18 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth = 240 }) =
               }
             }}
             sx={{
-              minHeight: 48,
+              minHeight: isMobile ? 56 : 48, // Larger touch targets on mobile
               justifyContent: open ? 'initial' : 'center',
-              px: 2.5,
+              px: isMobile ? 3 : 2.5, // More padding on mobile
+              borderRadius: isMobile ? 2 : 0, // Rounded corners on mobile
+              mx: isMobile ? 1 : 0, // Margin on mobile for rounded effect
+              '&.Mui-selected': {
+                backgroundColor: isMobile ? 'primary.main' : 'action.selected',
+                color: isMobile ? 'primary.contrastText' : 'inherit',
+                '&:hover': {
+                  backgroundColor: isMobile ? 'primary.dark' : 'action.selected',
+                },
+              },
             }}
           >
             <ListItemIcon
@@ -181,12 +191,26 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth = 240 }) =
   };
 
   const drawer = (
-    <Box sx={{ overflow: 'auto' }}>
+    <Box sx={{ 
+      overflow: 'auto',
+      height: '100%',
+      // Add padding for mobile safe areas
+      ...(isMobile && {
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      })
+    }}>
       <Toolbar />
       <Divider />
-      <List>
+      <List sx={{ 
+        px: isMobile ? 1 : 0,
+        py: isMobile ? 2 : 1,
+      }}>
         {navigationItems.map(item => renderNavItem(item))}
       </List>
+      
+      {/* Add some bottom spacing on mobile for better scrolling */}
+      {isMobile && <Box sx={{ height: 80 }} />}
     </Box>
   );
 
@@ -204,10 +228,14 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth = 240 }) =
           keepMounted: true, // Better open performance on mobile
         }}
         sx={{
-          display: { xs: 'block', sm: 'none' },
+          display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: drawerWidth,
+            // Enhanced mobile drawer styling
+            borderTopRightRadius: 16,
+            borderBottomRightRadius: 16,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
           },
         }}
       >
@@ -219,7 +247,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth = 240 }) =
         variant="persistent"
         open={open}
         sx={{
-          display: { xs: 'none', sm: 'block' },
+          display: { xs: 'none', md: 'block' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: drawerWidth,

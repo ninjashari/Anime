@@ -9,6 +9,8 @@ import {
   Avatar,
   Box,
   Tooltip,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -27,6 +29,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuClick, title = 'Anime Management System' }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {

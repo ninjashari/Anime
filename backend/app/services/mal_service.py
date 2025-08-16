@@ -11,7 +11,19 @@ import httpx
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.exceptions import (
+    ExternalAPIError, 
+    RateLimitError, 
+    AuthenticationError,
+    ConfigurationError,
+    ValidationError
+)
+from app.core.logging import get_logger
+from app.core.retry import RetryableHTTPClient, MAL_API_RETRY_CONFIG
+from app.core.validation import ValidationUtils
 from app.models.user import User
+
+logger = get_logger("mal_service")
 
 
 class RateLimiter:
@@ -51,12 +63,18 @@ class MyAnimeListService:
         self.base_url = "https://api.myanimelist.net/v2"
         self.auth_url = "https://myanimelist.net/v1/oauth2"
         self.rate_limiter = RateLimiter()
+        self.http_client = RetryableHTTPClient(config=MAL_API_RETRY_CONFIG)
         
         if not all([self.client_id, self.client_secret, self.redirect_uri]):
-            raise ValueError("MyAnimeList API credentials not configured")
+            raise ConfigurationError("MyAnimeList API credentials not configured")
+        
+        logger.info("MyAnimeList service initialized")
     
     def generate_auth_url(self, state: str) -> str:
         """Generate OAuth 2.0 authorization URL."""
+        if not state:
+            raise ValidationError("State parameter is required for OAuth flow")
+        
         params = {
             "response_type": "code",
             "client_id": self.client_id,
@@ -66,10 +84,18 @@ class MyAnimeListService:
             "code_challenge_method": "plain",
             "code_challenge": state  # Using state as code challenge for simplicity
         }
-        return f"{self.auth_url}/authorize?{urlencode(params)}"
+        
+        auth_url = f"{self.auth_url}/authorize?{urlencode(params)}"
+        logger.info("Generated MAL OAuth URL", extra={"state": state})
+        return auth_url
     
     async def exchange_code_for_tokens(self, code: str, state: str) -> Dict[str, Any]:
         """Exchange authorization code for access and refresh tokens."""
+        if not code:
+            raise ValidationError("Authorization code is required")
+        if not state:
+            raise ValidationError("State parameter is required")
+        
         await self.rate_limiter.acquire()
         
         data = {
@@ -81,17 +107,44 @@ class MyAnimeListService:
             "redirect_uri": self.redirect_uri
         }
         
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
+        try:
+            response = await self.http_client.post(
                 f"{self.auth_url}/token",
                 data=data,
                 headers={"Content-Type": "application/x-www-form-urlencoded"}
             )
-            response.raise_for_status()
-            return response.json()
+            
+            token_data = response.json()
+            logger.info("Successfully exchanged code for tokens", extra={"state": state})
+            return token_data
+            
+        except httpx.HTTPStatusError as e:
+            logger.error(
+                "Failed to exchange code for tokens",
+                extra={
+                    "status_code": e.response.status_code,
+                    "response_text": e.response.text,
+                    "external_service": "MyAnimeList"
+                }
+            )
+            raise ExternalAPIError(
+                "Failed to exchange authorization code for tokens",
+                service="MyAnimeList",
+                status_code=e.response.status_code,
+                response_data={"error": e.response.text}
+            )
+        except Exception as e:
+            logger.error("Unexpected error during token exchange", exc_info=True)
+            raise ExternalAPIError(
+                "Unexpected error during token exchange",
+                service="MyAnimeList"
+            )
     
     async def refresh_access_token(self, refresh_token: str) -> Dict[str, Any]:
         """Refresh access token using refresh token."""
+        if not refresh_token:
+            raise ValidationError("Refresh token is required")
+        
         await self.rate_limiter.acquire()
         
         data = {
@@ -101,14 +154,42 @@ class MyAnimeListService:
             "refresh_token": refresh_token
         }
         
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
+        try:
+            response = await self.http_client.post(
                 f"{self.auth_url}/token",
                 data=data,
                 headers={"Content-Type": "application/x-www-form-urlencoded"}
             )
-            response.raise_for_status()
-            return response.json()
+            
+            token_data = response.json()
+            logger.info("Successfully refreshed access token")
+            return token_data
+            
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401:
+                logger.warning("Refresh token is invalid or expired")
+                raise AuthenticationError("Refresh token is invalid or expired")
+            
+            logger.error(
+                "Failed to refresh access token",
+                extra={
+                    "status_code": e.response.status_code,
+                    "response_text": e.response.text,
+                    "external_service": "MyAnimeList"
+                }
+            )
+            raise ExternalAPIError(
+                "Failed to refresh access token",
+                service="MyAnimeList",
+                status_code=e.response.status_code,
+                response_data={"error": e.response.text}
+            )
+        except Exception as e:
+            logger.error("Unexpected error during token refresh", exc_info=True)
+            raise ExternalAPIError(
+                "Unexpected error during token refresh",
+                service="MyAnimeList"
+            )
     
     async def _make_authenticated_request(
         self, 
@@ -119,6 +200,9 @@ class MyAnimeListService:
         data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Make authenticated request to MyAnimeList API."""
+        if not access_token:
+            raise AuthenticationError("Access token is required")
+        
         await self.rate_limiter.acquire()
         
         headers = {
@@ -128,16 +212,67 @@ class MyAnimeListService:
         
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         
-        async with httpx.AsyncClient() as client:
-            response = await client.request(
+        try:
+            response = await self.http_client.request(
                 method=method,
                 url=url,
                 headers=headers,
                 params=params,
                 json=data
             )
-            response.raise_for_status()
-            return response.json()
+            
+            result = response.json()
+            logger.debug(
+                f"MAL API request successful: {method} {endpoint}",
+                extra={
+                    "method": method,
+                    "endpoint": endpoint,
+                    "status_code": response.status_code,
+                    "external_service": "MyAnimeList"
+                }
+            )
+            return result
+            
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401:
+                logger.warning("MAL access token is invalid or expired")
+                raise AuthenticationError("Access token is invalid or expired")
+            elif e.response.status_code == 429:
+                retry_after = e.response.headers.get("Retry-After")
+                logger.warning(
+                    "MAL API rate limit exceeded",
+                    extra={"retry_after": retry_after, "external_service": "MyAnimeList"}
+                )
+                raise RateLimitError(
+                    "MyAnimeList API rate limit exceeded",
+                    retry_after=int(retry_after) if retry_after else None
+                )
+            
+            logger.error(
+                f"MAL API request failed: {method} {endpoint}",
+                extra={
+                    "method": method,
+                    "endpoint": endpoint,
+                    "status_code": e.response.status_code,
+                    "response_text": e.response.text,
+                    "external_service": "MyAnimeList"
+                }
+            )
+            raise ExternalAPIError(
+                f"MyAnimeList API request failed: {e.response.status_code}",
+                service="MyAnimeList",
+                status_code=e.response.status_code,
+                response_data={"error": e.response.text}
+            )
+        except Exception as e:
+            logger.error(
+                f"Unexpected error during MAL API request: {method} {endpoint}",
+                exc_info=True
+            )
+            raise ExternalAPIError(
+                "Unexpected error during MyAnimeList API request",
+                service="MyAnimeList"
+            )
     
     async def get_user_info(self, access_token: str) -> Dict[str, Any]:
         """Get user information from MyAnimeList."""
@@ -183,6 +318,15 @@ class MyAnimeListService:
         comments: Optional[str] = None
     ) -> Dict[str, Any]:
         """Update anime status in user's MyAnimeList."""
+        # Validate inputs
+        anime_id = ValidationUtils.validate_mal_id(anime_id)
+        if status:
+            status = ValidationUtils.validate_anime_status(status)
+        if score is not None:
+            score = ValidationUtils.validate_anime_score(score)
+        if num_episodes_watched is not None:
+            num_episodes_watched = ValidationUtils.validate_episode_count(num_episodes_watched)
+        
         data = {}
         
         if status:
@@ -197,6 +341,14 @@ class MyAnimeListService:
             data["finish_date"] = finish_date
         if comments:
             data["comments"] = comments
+        
+        if not data:
+            raise ValidationError("At least one field must be provided for update")
+        
+        logger.info(
+            f"Updating anime {anime_id} status on MAL",
+            extra={"anime_id": anime_id, "updates": list(data.keys())}
+        )
         
         return await self._make_authenticated_request(
             "PATCH",
@@ -221,12 +373,21 @@ class MyAnimeListService:
         offset: int = 0
     ) -> Dict[str, Any]:
         """Search for anime on MyAnimeList."""
+        # Validate inputs
+        query = ValidationUtils.validate_search_query(query)
+        offset, limit = ValidationUtils.validate_pagination(offset, limit)
+        
         params = {
             "q": query,
             "limit": limit,
             "offset": offset,
             "fields": "id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_episodes,status,genres,media_type,source,average_episode_duration,rating,studios"
         }
+        
+        logger.info(
+            f"Searching anime on MAL: '{query}'",
+            extra={"query": query, "limit": limit, "offset": offset}
+        )
         
         return await self._make_authenticated_request(
             "GET",
@@ -252,22 +413,29 @@ class MyAnimeListService:
     async def ensure_valid_token(self, db: Session, user: User) -> str:
         """Ensure user has a valid access token, refresh if necessary."""
         if not user.mal_access_token:
-            raise ValueError("User has no MyAnimeList access token")
+            raise AuthenticationError("User has no MyAnimeList access token")
         
         # Check if token is expired (with 5 minute buffer)
         if user.mal_token_expires_at and user.mal_token_expires_at <= datetime.utcnow() + timedelta(minutes=5):
             if not user.mal_refresh_token:
-                raise ValueError("Access token expired and no refresh token available")
+                raise AuthenticationError("Access token expired and no refresh token available")
             
-            # Refresh the token
-            token_data = await self.refresh_access_token(user.mal_refresh_token)
-            self.store_tokens(
-                db, 
-                user, 
-                token_data["access_token"], 
-                token_data.get("refresh_token", user.mal_refresh_token),
-                token_data["expires_in"]
-            )
+            logger.info(f"Refreshing expired MAL token for user {user.id}")
+            
+            try:
+                # Refresh the token
+                token_data = await self.refresh_access_token(user.mal_refresh_token)
+                self.store_tokens(
+                    db, 
+                    user, 
+                    token_data["access_token"], 
+                    token_data.get("refresh_token", user.mal_refresh_token),
+                    token_data["expires_in"]
+                )
+                logger.info(f"Successfully refreshed MAL token for user {user.id}")
+            except Exception as e:
+                logger.error(f"Failed to refresh MAL token for user {user.id}", exc_info=True)
+                raise
         
         return user.mal_access_token
 
