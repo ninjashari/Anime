@@ -194,7 +194,8 @@ class MyAnimeListService:
         endpoint: str, 
         access_token: str,
         params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None
+        data: Optional[Dict[str, Any]] = None,
+        use_form_data: bool = False
     ) -> Dict[str, Any]:
         """Make authenticated request to MyAnimeList API."""
         if not access_token:
@@ -203,9 +204,18 @@ class MyAnimeListService:
         await self.rate_limiter.acquire()
         
         headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
+            "Authorization": f"Bearer {access_token}"
         }
+        
+        # Use form-encoded data for list updates, JSON for other endpoints
+        if use_form_data and data:
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            request_data = data
+            json_data = None
+        else:
+            headers["Content-Type"] = "application/json"
+            request_data = None
+            json_data = data
         
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         
@@ -215,7 +225,8 @@ class MyAnimeListService:
                 url=url,
                 headers=headers,
                 params=params,
-                json=data
+                data=request_data,
+                json=json_data
             )
             
             result = response.json()
@@ -348,7 +359,7 @@ class MyAnimeListService:
         )
         
         return await self._make_authenticated_request(
-            "PATCH",
+            "PUT",
             f"/anime/{anime_id}/my_list_status",
             access_token,
             data=data

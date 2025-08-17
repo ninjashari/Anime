@@ -1,17 +1,17 @@
-import { api, handleApiError, ApiResponse } from './api';
+import { api, handleApiError } from './api';
 import { 
   AnimeListResponse, 
   AnimeListItem, 
-  AnimeListItemUpdate, 
-  EpisodeProgressUpdate,
+  AnimeListItemUpdate,
   AnimeStatus 
 } from '../types/anime';
 
 export interface AnimeListApiParams {
   page?: number;
   per_page?: number;
-  sort_by?: string;
-  sort_order?: 'asc' | 'desc';
+  // Note: sort_by and sort_order are handled client-side for now
+  // sort_by?: string;
+  // sort_order?: 'asc' | 'desc';
 }
 
 export const animeListApi = {
@@ -23,11 +23,18 @@ export const animeListApi = {
     params: AnimeListApiParams = {}
   ): Promise<AnimeListResponse> => {
     try {
-      const response = await api.get<ApiResponse<AnimeListResponse>>(
-        `/anime/lists/${status}`,
-        params
+      // Add status to the query parameters, filtering out unsupported params
+      const queryParams = {
+        page: params.page,
+        per_page: params.per_page,
+        status: status
+      };
+      
+      const response = await api.get<AnimeListResponse>(
+        `/anime-lists`,
+        queryParams
       );
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
@@ -42,11 +49,11 @@ export const animeListApi = {
     status: AnimeStatus
   ): Promise<AnimeListItem> => {
     try {
-      const response = await api.put<ApiResponse<AnimeListItem>>(
-        `/anime/${animeId}/status`,
+      const response = await api.put<AnimeListItem>(
+        `/anime-lists/${animeId}`,
         { status }
       );
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
@@ -61,11 +68,11 @@ export const animeListApi = {
     episodes_watched: number
   ): Promise<AnimeListItem> => {
     try {
-      const response = await api.put<ApiResponse<AnimeListItem>>(
-        `/anime/${animeId}/progress`,
+      const response = await api.put<AnimeListItem>(
+        `/anime-lists/${animeId}/progress`,
         { episodes_watched }
       );
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
@@ -80,11 +87,11 @@ export const animeListApi = {
     updates: AnimeListItemUpdate
   ): Promise<AnimeListItem> => {
     try {
-      const response = await api.put<ApiResponse<AnimeListItem>>(
-        `/anime/${animeId}`,
+      const response = await api.put<AnimeListItem>(
+        `/anime-lists/${animeId}`,
         updates
       );
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
@@ -96,7 +103,7 @@ export const animeListApi = {
    */
   removeAnime: async (animeId: number): Promise<void> => {
     try {
-      await api.delete(`/anime/${animeId}`);
+      await api.delete(`/anime-lists/${animeId}`);
     } catch (error) {
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
@@ -108,10 +115,10 @@ export const animeListApi = {
    */
   getAnimeListItem: async (animeId: number): Promise<AnimeListItem> => {
     try {
-      const response = await api.get<ApiResponse<AnimeListItem>>(
-        `/anime/${animeId}`
+      const response = await api.get<AnimeListItem>(
+        `/anime-lists/${animeId}`
       );
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const apiError = handleApiError(error);
       throw new Error(apiError.message);

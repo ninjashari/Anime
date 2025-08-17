@@ -20,6 +20,11 @@ import TokenSetup from './pages/TokenSetup';
 import MALCallback from './pages/MALCallback';
 import Search from './pages/Search';
 import Mappings from './pages/Mappings';
+import WatchingList from './pages/WatchingList';
+import CompletedList from './pages/CompletedList';
+import OnHoldList from './pages/OnHoldList';
+import DroppedList from './pages/DroppedList';
+import PlanToWatchList from './pages/PlanToWatchList';
 
 // Create a theme instance with responsive design enhancements
 const theme = createTheme({
@@ -197,14 +202,14 @@ function App() {
                   {/* Dashboard */}
                   <Route path="dashboard" element={<Dashboard />} />
                   
-                  {/* Anime Lists - Placeholder routes */}
+                  {/* Anime Lists */}
                   <Route path="lists">
                     <Route index element={<Navigate to="/lists/watching" replace />} />
-                    <Route path="watching" element={<div>Currently Watching - Coming Soon</div>} />
-                    <Route path="completed" element={<div>Completed - Coming Soon</div>} />
-                    <Route path="on-hold" element={<div>On Hold - Coming Soon</div>} />
-                    <Route path="dropped" element={<div>Dropped - Coming Soon</div>} />
-                    <Route path="plan-to-watch" element={<div>Plan to Watch - Coming Soon</div>} />
+                    <Route path="watching" element={<WatchingList />} />
+                    <Route path="completed" element={<CompletedList />} />
+                    <Route path="on-hold" element={<OnHoldList />} />
+                    <Route path="dropped" element={<DroppedList />} />
+                    <Route path="plan-to-watch" element={<PlanToWatchList />} />
                   </Route>
                   
                   {/* Search */}

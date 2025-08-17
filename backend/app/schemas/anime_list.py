@@ -61,6 +61,8 @@ class AnimeInfo(BaseModel):
     status: Optional[str]
     aired_from: Optional[date]
     aired_to: Optional[date]
+    start_season_year: Optional[int]
+    start_season_season: Optional[str]
     score: Optional[float]
     rank: Optional[int]
     popularity: Optional[int]

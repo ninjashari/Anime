@@ -12,6 +12,8 @@ export interface AnimeInfo {
   status?: string;
   aired_from?: string;
   aired_to?: string;
+  start_season_year?: number;
+  start_season_season?: string;
   score?: number;
   rank?: number;
   popularity?: number;

@@ -1,0 +1,1176 @@
+{
+  "info": {
+    "name": "Anime Management System API",
+    "description": "Comprehensive API collection for the Anime Management System with MyAnimeList and Jellyfin integration",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8005",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Root Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', responseJson.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"name\": \"Test User\",\n  \"password\": \"testpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', responseJson.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MyAnimeList Integration",
+      "item": [
+        {
+          "name": "Get MAL Auth URL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/auth-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "auth-url"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MAL OAuth Callback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"authorization_code_from_mal\",\n  \"state\": \"csrf_token_from_auth_url\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/callback",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "callback"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get MAL User Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/user-info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "user-info"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get MAL Token Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/token-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "token-status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh MAL Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "refresh-token"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get MAL Anime List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/animelist?anime_status=watching&limit=100&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "animelist"],
+              "query": [
+                {
+                  "key": "anime_status",
+                  "value": "watching",
+                  "description": "Filter by status: watching, completed, on_hold, dropped, plan_to_watch"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search MAL Anime",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/search?query=naruto&limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "naruto"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update MAL Anime Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"watching\",\n  \"score\": 8,\n  \"num_episodes_watched\": 5,\n  \"comments\": \"Great anime!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/anime/20/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "anime", "20", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove MAL Anime from List",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mal/anime/20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mal", "anime", "20"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Anime List Management",
+      "item": [
+        {
+          "name": "Get User Anime Lists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime-list?status=watching&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime-list"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "watching",
+                  "description": "Filter by status"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Specific Anime List Item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime-list/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime-list", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Anime Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\",\n  \"score\": 9,\n  \"episodes_watched\": 24,\n  \"start_date\": \"2024-01-01\",\n  \"finish_date\": \"2024-01-15\",\n  \"notes\": \"Amazing anime!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anime-list/1?sync_to_mal=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime-list", "1"],
+              "query": [
+                {
+                  "key": "sync_to_mal",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Episode Progress",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"episodes_watched\": 12\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anime-list/1/progress?sync_to_mal=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime-list", "1", "progress"],
+              "query": [
+                {
+                  "key": "sync_to_mal",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Anime from List",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime-list/1?sync_to_mal=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime-list", "1"],
+              "query": [
+                {
+                  "key": "sync_to_mal",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Update Anime List",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"updates\": [\n    {\n      \"anime_id\": 1,\n      \"status\": \"completed\",\n      \"score\": 9\n    },\n    {\n      \"anime_id\": 2,\n      \"episodes_watched\": 5\n    }\n  ],\n  \"sync_to_mal\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anime-list/batch-update",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime-list", "batch-update"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Anime List Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime-list/stats/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime-list", "stats", "summary"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Search Anime",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/anime?query=naruto&limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "anime"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "naruto"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Anime to List from Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mal_id\": 20,\n  \"status\": \"plan_to_watch\",\n  \"score\": null,\n  \"episodes_watched\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/search/anime/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "anime", "add"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Search History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/history?limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Search Suggestions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/suggestions?query=nar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "suggestions"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "nar"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Search History",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "history"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Search History Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/history/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "history", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Anime Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats/anime-count",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats", "anime-count"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Episodes Watched",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats/episodes-watched",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats", "episodes-watched"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Time Spent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats/time-spent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats", "time-spent"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mean Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats/mean-score",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats", "mean-score"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Score Distribution",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats/score-distribution",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats", "score-distribution"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Status Breakdown",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats/status-breakdown",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats", "status-breakdown"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Synchronization",
+      "item": [
+        {
+          "name": "Sync Current User Anime",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sync/user?force_full_sync=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sync", "user"],
+              "query": [
+                {
+                  "key": "force_full_sync",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Specific User Anime",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sync/user/1?force_full_sync=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sync", "user", "1"],
+              "query": [
+                {
+                  "key": "force_full_sync",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Sync Users",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_ids\": [1],\n  \"force_full_sync\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sync/users/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sync", "users", "batch"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sync Task Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sync/status/task_id_here",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sync", "status", "task_id_here"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Last Sync",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sync/user/last-sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sync", "user", "last-sync"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AniDB Mappings",
+      "item": [
+        {
+          "name": "Get All Mappings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping?limit=100&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unmapped Entries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/unmapped?limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "unmapped"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mapping Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "statistics"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Specific Mapping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Mapping",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anidb_id\": 123,\n  \"mal_id\": 456,\n  \"title\": \"Example Anime\",\n  \"confidence_score\": 0.95,\n  \"source\": \"manual\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Mapping",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mal_id\": 789,\n  \"title\": \"Updated Anime Title\",\n  \"confidence_score\": 0.99\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Mapping",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/123",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lookup MAL ID by AniDB ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/lookup/123/mal-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "lookup", "123", "mal-id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Mappings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"naruto\",\n  \"confidence_threshold\": 0.8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "search"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Mapping Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"force_update\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Calculate Confidence Score",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anidb_title\": \"Naruto\",\n  \"mal_title\": \"Naruto\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/anidb-mapping/confidence-score",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anidb-mapping", "confidence-score"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Jellyfin Integration",
+      "item": [
+        {
+          "name": "Jellyfin Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Type\": \"PlaybackProgress\",\n  \"ItemId\": \"item_id_here\",\n  \"PlayedToCompletion\": false,\n  \"PlaybackPositionTicks\": 12000000000,\n  \"UserId\": \"user_id_here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jellyfin/webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jellyfin", "webhook"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Jellyfin Activities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jellyfin/activities?processed=false&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jellyfin", "activities"],
+              "query": [
+                {
+                  "key": "processed",
+                  "value": "false"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Jellyfin Activities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jellyfin/activities/all?user_id=1&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jellyfin", "activities", "all"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Jellyfin Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jellyfin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jellyfin", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reprocess Failed Activities",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jellyfin/reprocess?limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jellyfin", "reprocess"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Jellyfin Activity",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jellyfin/activities/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jellyfin", "activities", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Jellyfin Webhook Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jellyfin/webhook/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jellyfin", "webhook", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

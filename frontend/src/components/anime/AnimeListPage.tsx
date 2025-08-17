@@ -3,19 +3,13 @@ import {
   Box,
   Typography,
   Grid,
-  Pagination,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   TextField,
   InputAdornment,
   Chip,
   Alert,
   Skeleton,
   Fab,
-  useTheme,
-  SelectChangeEvent
+  useTheme
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -34,7 +28,7 @@ interface AnimeListPageProps {
   title: string;
 }
 
-type SortOption = 'title' | 'score' | 'episodes_watched' | 'updated_at' | 'start_date';
+// Removed SortOption type since sorting is now handled by backend
 type ViewMode = 'grid' | 'list';
 
 const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
@@ -45,14 +39,9 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
   const [selectedAnime, setSelectedAnime] = useState<AnimeListItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   
-  // Pagination and filtering
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  // Filtering and view mode
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortOption>('updated_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [perPage] = useState(20);
 
   // Drag and drop state
   const [draggedItem, setDraggedItem] = useState<AnimeListItem | null>(null);
@@ -63,27 +52,23 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
       setError(null);
       
       const params: AnimeListApiParams = {
-        page,
-        per_page: perPage,
-        sort_by: sortBy,
-        sort_order: sortOrder
+        per_page: 0  // Get all items without pagination
       };
 
       const response = await animeListApi.getAnimeList(status, params);
       setAnimeList(response.items);
-      setTotalPages(Math.ceil(response.total / perPage));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load anime list');
     } finally {
       setLoading(false);
     }
-  }, [status, page, perPage, sortBy, sortOrder]);
+  }, [status]);
 
   useEffect(() => {
     fetchAnimeList();
   }, [fetchAnimeList]);
 
-  // Filter anime list based on search query
+  // Filter anime list based on search query (sorting is now handled by backend)
   const filteredAnimeList = animeList.filter(anime =>
     anime.anime.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (anime.anime.title_english?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -162,19 +147,7 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
     setModalOpen(true);
   };
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-  };
-
-  const handleSortChange = (event: SelectChangeEvent) => {
-    setSortBy(event.target.value as SortOption);
-    setPage(1);
-  };
-
-  const handleSortOrderToggle = () => {
-    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-    setPage(1);
-  };
+  // Removed pagination and sort handlers since sorting is now handled by backend
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -278,30 +251,16 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
             }}
           />
 
-          {/* Sort */}
-          <FormControl size="small" sx={{ minWidth: { xs: 120, sm: 150 } }}>
-            <InputLabel>Sort by</InputLabel>
-            <Select
-              value={sortBy}
-              label="Sort by"
-              onChange={handleSortChange}
-            >
-              <MenuItem value="title">Title</MenuItem>
-              <MenuItem value="score">Score</MenuItem>
-              <MenuItem value="episodes_watched">Progress</MenuItem>
-              <MenuItem value="updated_at">Last Updated</MenuItem>
-              <MenuItem value="start_date">Start Date</MenuItem>
-            </Select>
-          </FormControl>
-
-          {/* Sort order */}
+          {/* Sort indicator - shows current sorting */}
           <Chip
-            label={sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
-            onClick={handleSortOrderToggle}
+            label="Sorted by Season/Year (Fall→Summer→Spring→Winter), then Name"
             icon={<SortIcon />}
             variant="outlined"
-            clickable
             size={theme.breakpoints.down('sm') ? 'small' : 'medium'}
+            sx={{ 
+              color: 'text.secondary',
+              borderColor: 'text.secondary'
+            }}
           />
 
           {/* View mode toggle - Hide on mobile */}
@@ -382,18 +341,6 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ status, title }) => {
             ))}
           </Grid>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={handlePageChange}
-                color="primary"
-                size="large"
-              />
-            </Box>
-          )}
         </>
       )}
 

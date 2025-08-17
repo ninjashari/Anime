@@ -130,6 +130,7 @@ class SyncService:
         
         while True:
             try:
+                logger.debug(f"Fetching anime list from MAL: offset={offset}, limit={limit}")
                 response = await self.mal_service.get_user_anime_list(
                     access_token=access_token,
                     limit=limit,
@@ -137,14 +138,20 @@ class SyncService:
                 )
                 
                 anime_list = response.get("data", [])
+                logger.debug(f"MAL API returned {len(anime_list)} anime items at offset {offset}")
+                
                 if not anime_list:
+                    logger.debug("No more anime data from MAL API, stopping pagination")
                     break
                 
                 all_anime.extend(anime_list)
                 offset += limit
                 
+                logger.info(f"Fetched {len(all_anime)} total anime so far from MAL")
+                
                 # Check if we've fetched all data
                 if len(anime_list) < limit:
+                    logger.debug(f"Received {len(anime_list)} < {limit}, reached end of data")
                     break
                     
             except Exception as e:
@@ -153,6 +160,7 @@ class SyncService:
                 await asyncio.sleep(self.retry_delay)
                 continue
         
+        logger.info(f"Completed fetching {len(all_anime)} total anime from MAL")
         return all_anime
     
     async def _process_anime_batch(
@@ -188,7 +196,10 @@ class SyncService:
                 
                 mal_id = anime_info.get("id")
                 if not mal_id:
+                    logger.warning(f"Skipping anime without MAL ID: {anime_data}")
                     continue
+                
+                logger.debug(f"Processing anime MAL ID {mal_id}: {anime_info.get('title', 'Unknown Title')}")
                 
                 # Sync anime information
                 anime, anime_created = await self._sync_anime_info(db, anime_info)
@@ -213,6 +224,13 @@ class SyncService:
                 error_msg = f"Error processing anime {anime_info.get('id', 'unknown')}: {str(e)}"
                 logger.error(error_msg)
                 batch_stats["errors"].append(error_msg)
+                
+                # If there's a database error, rollback the current transaction
+                # to prevent PendingRollbackError
+                try:
+                    db.rollback()
+                except Exception as rollback_error:
+                    logger.error(f"Error during rollback: {rollback_error}")
         
         return batch_stats
     
@@ -260,6 +278,12 @@ class SyncService:
             except ValueError:
                 pass
         
+        # Parse season information
+        start_season = anime_info.get("start_season")
+        if start_season:
+            anime.start_season_year = start_season.get("year")
+            anime.start_season_season = start_season.get("season")  # spring, summer, fall, winter
+        
         # Update scores and rankings
         anime.score = anime_info.get("mean", anime.score)
         anime.rank = anime_info.get("rank", anime.rank)
@@ -269,6 +293,10 @@ class SyncService:
         main_picture = anime_info.get("main_picture", {})
         if main_picture:
             anime.image_url = main_picture.get("large") or main_picture.get("medium", anime.image_url)
+        
+        # Flush to get the anime.id for new anime records
+        if created:
+            db.flush()
         
         return anime, created
     

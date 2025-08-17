@@ -25,7 +25,7 @@ router = APIRouter(prefix="/anime-lists", tags=["anime-lists"])
 async def get_anime_lists(
     status: Optional[str] = Query(None, description="Filter by anime status"),
     page: int = Query(1, ge=1, description="Page number"),
-    per_page: int = Query(50, ge=1, le=100, description="Items per page"),
+    per_page: int = Query(50, ge=0, le=1000, description="Items per page (0 = all items)"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -33,6 +33,7 @@ async def get_anime_lists(
     Get user's anime lists with optional status filtering and pagination.
     
     Valid status values: watching, completed, on_hold, dropped, plan_to_watch
+    Set per_page=0 to get all items without pagination.
     """
     anime_list_service = get_anime_list_service()
     

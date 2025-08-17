@@ -4,7 +4,7 @@ Service for anime list management operations.
 from datetime import datetime
 from typing import Optional, List, Tuple, Dict, Any
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, case
 
 from app.models.user import User
 from app.models.anime import Anime
@@ -38,7 +38,9 @@ class AnimeListService:
         page: int = 1,
         per_page: int = 50
     ) -> Tuple[List[UserAnimeList], int]:
-        """Get user's anime lists filtered by status with pagination."""
+        """Get user's anime lists filtered by status. Returns all items if per_page is 0."""
+        from app.models.anime import Anime
+        
         query = db.query(UserAnimeList).options(
             joinedload(UserAnimeList.anime)
         ).filter(UserAnimeList.user_id == user.id)
@@ -49,9 +51,32 @@ class AnimeListService:
         # Get total count
         total = query.count()
         
-        # Apply pagination
-        offset = (page - 1) * per_page
-        items = query.order_by(UserAnimeList.updated_at.desc()).offset(offset).limit(per_page).all()
+        # Apply reverse seasonal ordering by year and season, then by name
+        # Order by: season_year DESC, season DESC (fall->summer->spring->winter), then name ASC
+        # Season ordering: fall (4) -> summer (3) -> spring (2) -> winter (1) -> unknown (0)
+        ordered_query = query.join(Anime).order_by(
+            # Primary: Season year (newest first, nulls last)
+            Anime.start_season_year.desc().nulls_last(),
+            # Secondary: Season within year (fall -> summer -> spring -> winter)
+            case(
+                (Anime.start_season_season == 'fall', 4),
+                (Anime.start_season_season == 'summer', 3),
+                (Anime.start_season_season == 'spring', 2),
+                (Anime.start_season_season == 'winter', 1),
+                else_=0
+            ).desc(),
+            # Tertiary: Anime name (alphabetical)
+            Anime.title.asc(),
+            # Final fallback: Updated date
+            UserAnimeList.updated_at.desc()
+        )
+        
+        # If per_page is 0, return all items without pagination
+        if per_page == 0:
+            items = ordered_query.all()
+        else:
+            offset = (page - 1) * per_page
+            items = ordered_query.offset(offset).limit(per_page).all()
         
         return items, total
     
@@ -96,8 +121,14 @@ class AnimeListService:
         
         # Sync to MyAnimeList if requested and user has tokens
         if sync_to_mal and user.mal_access_token:
+            print(f"Starting MAL sync for anime {anime_list_item.anime.mal_id} ({anime_list_item.anime.title})")
             try:
+                if self.mal_service is None:
+                    self.mal_service = self._get_mal_service()
+                    print("MAL service initialized")
+                
                 access_token = await self.mal_service.ensure_valid_token(db, user)
+                print("MAL token validated successfully")
                 
                 # Convert local status to MAL status format
                 mal_status_map = {
@@ -122,14 +153,24 @@ class AnimeListService:
                 if anime_list_item.notes:
                     mal_data['comments'] = anime_list_item.notes
                 
+                print(f"Sending to MAL: {mal_data}")
+                
                 await self.mal_service.update_anime_list_status(
                     access_token,
                     anime_list_item.anime.mal_id,
                     **mal_data
                 )
+                print(f"MAL sync completed successfully for anime {anime_list_item.anime.mal_id}")
             except Exception as e:
                 # Log the error but don't fail the local update
                 print(f"Failed to sync to MyAnimeList: {e}")
+                import traceback
+                traceback.print_exc()
+        else:
+            if not sync_to_mal:
+                print("MAL sync disabled by parameter")
+            elif not user.mal_access_token:
+                print("No MAL access token for user")
         
         return anime_list_item
     

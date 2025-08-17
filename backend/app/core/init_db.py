@@ -71,8 +71,8 @@ def create_database_constraints() -> None:
                 )
                 """,
                 
-                # Ensure anime episodes are positive
-                "ALTER TABLE anime ADD CONSTRAINT check_positive_episodes CHECK (episodes IS NULL OR episodes > 0)",
+                # Ensure anime episodes are non-negative (0 allowed for not-yet-aired anime)
+                "ALTER TABLE anime ADD CONSTRAINT check_positive_episodes CHECK (episodes IS NULL OR episodes >= 0)",
                 
                 # Ensure anime score is in valid range
                 "ALTER TABLE anime ADD CONSTRAINT check_anime_score_range CHECK (score IS NULL OR (score >= 0 AND score <= 10))",

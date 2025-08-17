@@ -20,6 +20,8 @@ class Anime(BaseModel):
     status = Column(String(50), nullable=True)  # finished_airing, currently_airing, not_yet_aired
     aired_from = Column(Date, nullable=True)
     aired_to = Column(Date, nullable=True)
+    start_season_year = Column(Integer, nullable=True)  # e.g., 2024
+    start_season_season = Column(String(10), nullable=True)  # spring, summer, fall, winter
     score = Column(Numeric(3, 2), nullable=True)  # MyAnimeList average score
     rank = Column(Integer, nullable=True)
     popularity = Column(Integer, nullable=True)

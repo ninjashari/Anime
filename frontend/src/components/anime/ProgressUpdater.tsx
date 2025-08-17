@@ -33,6 +33,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState<string>(currentProgress.toString());
   const [isEditing, setIsEditing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (!isEditing) {
@@ -44,13 +45,20 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     setInputValue(event.target.value);
   };
 
-  const handleInputBlur = () => {
+  const handleInputBlur = async () => {
     setIsEditing(false);
     const newValue = parseInt(inputValue, 10);
-    if (!isNaN(newValue) && newValue >= 0) {
+    if (!isNaN(newValue) && newValue >= 0 && !isUpdating) {
       const maxEpisodes = totalEpisodes || Number.MAX_SAFE_INTEGER;
       const clampedValue = Math.min(newValue, maxEpisodes);
-      onProgressUpdate(clampedValue);
+      if (clampedValue !== currentProgress) {
+        setIsUpdating(true);
+        try {
+          await onProgressUpdate(clampedValue);
+        } finally {
+          setIsUpdating(false);
+        }
+      }
       setInputValue(clampedValue.toString());
     } else {
       setInputValue(currentProgress.toString());
@@ -67,15 +75,31 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
     }
   };
 
-  const handleIncrement = () => {
+  const handleIncrement = async () => {
+    if (isUpdating) return;
     const maxEpisodes = totalEpisodes || Number.MAX_SAFE_INTEGER;
     const newValue = Math.min(currentProgress + 1, maxEpisodes);
-    onProgressUpdate(newValue);
+    if (newValue !== currentProgress) {
+      setIsUpdating(true);
+      try {
+        await onProgressUpdate(newValue);
+      } finally {
+        setIsUpdating(false);
+      }
+    }
   };
 
-  const handleDecrement = () => {
+  const handleDecrement = async () => {
+    if (isUpdating) return;
     const newValue = Math.max(currentProgress - 1, 0);
-    onProgressUpdate(newValue);
+    if (newValue !== currentProgress) {
+      setIsUpdating(true);
+      try {
+        await onProgressUpdate(newValue);
+      } finally {
+        setIsUpdating(false);
+      }
+    }
   };
 
   const progressPercentage = totalEpisodes 
@@ -93,7 +117,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
               <IconButton
                 size="small"
                 onClick={handleDecrement}
-                disabled={disabled || currentProgress <= 0}
+                disabled={disabled || currentProgress <= 0 || isUpdating}
                 sx={{ p: 0.5 }}
               >
                 <RemoveIcon fontSize="small" />
@@ -108,7 +132,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
           onBlur={handleInputBlur}
           onFocus={handleInputFocus}
           onKeyPress={handleKeyPress}
-          disabled={disabled}
+          disabled={disabled || isUpdating}
           size="small"
           type="number"
           inputProps={{
@@ -141,7 +165,7 @@ const ProgressUpdater: React.FC<ProgressUpdaterProps> = ({
               <IconButton
                 size="small"
                 onClick={handleIncrement}
-                disabled={disabled || Boolean(totalEpisodes && currentProgress >= totalEpisodes)}
+                disabled={disabled || Boolean(totalEpisodes && currentProgress >= totalEpisodes) || isUpdating}
                 sx={{ p: 0.5 }}
               >
                 <AddIcon fontSize="small" />

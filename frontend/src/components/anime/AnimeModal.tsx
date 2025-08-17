@@ -48,13 +48,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
   onRemove
 }) => {
   const theme = useTheme();
-  let fullScreen = false;
-  try {
-    fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  } catch (error) {
-    // Fallback for test environment
-    fullScreen = false;
-  }
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [notes, setNotes] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
 
